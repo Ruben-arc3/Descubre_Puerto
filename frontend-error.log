@@ -1,0 +1,518 @@
+10:16:54 a.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+10:16:54 a.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+10:18:06 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:18:06 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:24:29 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:24:29 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:29:32 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:29:32 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:32:47 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:32:47 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:33:34 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:33:34 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:35:15 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:35:15 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:35:24 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:35:24 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:38:34 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:38:34 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:47:15 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:47:15 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:48:03 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:48:04 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:48:39 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:48:39 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:49:51 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+10:49:51 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:16:01 a.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+11:21:42 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:21:42 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:21:58 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:21:58 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:22:53 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:22:53 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:22:53 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:37:28 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:37:28 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:37:43 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:37:43 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:38:02 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:38:02 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:38:37 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:38:37 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:38:45 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:38:45 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:39:06 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:39:06 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:39:24 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:39:24 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:39:50 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:39:50 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:42:25 a.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+11:44:10 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:44:10 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:44:39 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:44:39 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:48:49 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:48:49 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:49:13 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:49:13 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:49:25 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:49:25 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:53:44 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:53:44 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:56:13 a.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+11:58:07 a.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected `,` or `}` but found `&&`
+ - `,` or `}` expected in frontend/main.tsx at 19161..19163
+ - Opened here in frontend/main.tsx at 19151..19152
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+11:58:07 a.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected `,` or `}` but found `&&`
+ - `,` or `}` expected in frontend/main.tsx at 19161..19163
+ - Opened here in frontend/main.tsx at 19151..19152
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+11:58:07 a.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+11:58:07 a.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+11:58:20 a.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mUnexpected token
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m frontend/main.tsx:350:1 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m350 │[0m }
+ [38;5;240m    │[0m ┬  
+ [38;5;240m    │[0m ╰── 
+[38;5;246m─────╯[0m
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+11:58:20 a.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mUnexpected token
+     [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m frontend/main.tsx:350:1 [38;5;246m][0m
+     [38;5;246m│[0m
+ [38;5;246m350 │[0m }
+ [38;5;240m    │[0m ┬  
+ [38;5;240m    │[0m ╰── 
+[38;5;246m─────╯[0m
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+11:58:20 a.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+11:58:20 a.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+11:58:32 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+11:58:32 a.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:00:30 p.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+12:00:51 p.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+12:07:42 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:07:42 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:08:47 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:08:47 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:09:04 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:09:04 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:11:49 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:11:49 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:22:25 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:22:25 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:27:25 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:27:25 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:27:46 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:27:46 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:27:46 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:27:46 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:34:00 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:34:01 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:34:29 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:34:29 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:34:51 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:34:51 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:35:04 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected `}` but found `Identifier`
+ - `}` expected in frontend/main.tsx at 23378..23382
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+12:35:04 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected `}` but found `Identifier`
+ - `}` expected in frontend/main.tsx at 23378..23382
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+12:35:04 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+12:35:04 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+12:35:29 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected `}` but found `Identifier`
+ - `}` expected in frontend/main.tsx at 23422..23426
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+12:35:29 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mExpected `}` but found `Identifier`
+ - `}` expected in frontend/main.tsx at 23422..23426
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+12:35:29 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+12:35:29 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+12:36:24 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:36:24 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:44:56 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:44:56 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:45:54 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:45:54 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:46:10 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:46:10 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:46:36 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:46:36 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:47:24 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:47:24 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:58:28 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:58:28 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:59:07 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+12:59:07 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:00:34 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:00:34 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:00:45 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:00:45 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:01:09 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:01:09 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:02:03 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:02:03 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:04:35 p.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+1:09:55 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:09:55 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:09:55 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:10:14 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:10:14 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:10:14 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:10:52 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:10:52 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:10:52 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:11:19 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:11:19 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:11:19 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:11:37 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:11:37 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:11:37 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:12:20 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mAdjacent JSX elements must be wrapped in an enclosing tag.
+ -  in frontend/main.tsx at 61408..61409
+ [38;5;240m │[0m 
+ [38;5;240m │[0m [38;5;115mHelp[0m: Did you want a JSX fragment `<>...</>`?
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+1:12:20 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mAdjacent JSX elements must be wrapped in an enclosing tag.
+ -  in frontend/main.tsx at 61408..61409
+ [38;5;240m │[0m 
+ [38;5;240m │[0m [38;5;115mHelp[0m: Did you want a JSX fragment `<>...</>`?
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+1:12:20 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mAdjacent JSX elements must be wrapped in an enclosing tag.
+ -  in frontend/main.tsx at 61408..61409
+ [38;5;240m │[0m 
+ [38;5;240m │[0m [38;5;115mHelp[0m: Did you want a JSX fragment `<>...</>`?
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+1:12:20 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+1:12:20 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+1:12:20 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+1:13:17 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mAdjacent JSX elements must be wrapped in an enclosing tag.
+ -  in frontend/main.tsx at 61408..61409
+ [38;5;240m │[0m 
+ [38;5;240m │[0m [38;5;115mHelp[0m: Did you want a JSX fragment `<>...</>`?
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+1:13:17 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mAdjacent JSX elements must be wrapped in an enclosing tag.
+ -  in frontend/main.tsx at 61408..61409
+ [38;5;240m │[0m 
+ [38;5;240m │[0m [38;5;115mHelp[0m: Did you want a JSX fragment `<>...</>`?
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+1:13:17 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+1:13:17 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+1:14:08 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mAdjacent JSX elements must be wrapped in an enclosing tag.
+ -  in frontend/main.tsx at 61479..61480
+ [38;5;240m │[0m 
+ [38;5;240m │[0m [38;5;115mHelp[0m: Did you want a JSX fragment `<>...</>`?
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+1:14:08 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mAdjacent JSX elements must be wrapped in an enclosing tag.
+ -  in frontend/main.tsx at 61479..61480
+ [38;5;240m │[0m 
+ [38;5;240m │[0m [38;5;115mHelp[0m: Did you want a JSX fragment `<>...</>`?
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+1:14:08 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+1:14:08 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+1:20:16 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mAdjacent JSX elements must be wrapped in an enclosing tag.
+ -  in frontend/main.tsx at 61481..61482
+ [38;5;240m │[0m 
+ [38;5;240m │[0m [38;5;115mHelp[0m: Did you want a JSX fragment `<>...</>`?
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+1:20:16 p.m. [vite] Internal server error: Transform failed with 1 error:
+
+[31m[PARSE_ERROR] [0mAdjacent JSX elements must be wrapped in an enclosing tag.
+ -  in frontend/main.tsx at 61481..61482
+ [38;5;240m │[0m 
+ [38;5;240m │[0m [38;5;115mHelp[0m: Did you want a JSX fragment `<>...</>`?
+
+  Plugin: vite:oxc
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx
+      at transformWithOxc (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7673:19)
+      at TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:7747:26)
+      at EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:51)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+1:20:16 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+1:20:16 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+1:22:00 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:22:00 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:23:01 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:23:01 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:23:07 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:23:07 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:26:34 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:26:34 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:26:51 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:26:51 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:27:02 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:27:02 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:37:03 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:37:03 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:37:03 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:38:04 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:38:04 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:38:04 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:52:16 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:52:16 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:52:17 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:59:23 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+1:59:23 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+2:37:20 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+2:37:20 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+2:40:54 p.m. [vite] Internal server error: Failed to resolve import "./catalog-menu.css" from "frontend/main.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx:4:7
+  2  |  import { createRoot } from "react-dom/client";
+  3  |  import "./styles.css";
+  4  |  import "./catalog-menu.css";
+     |          ^
+  5  |  var _jsxFileName = "C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx";
+  6  |  import { jsxDEV as _jsxDEV, Fragment as _Fragment } from "react/jsx-dev-runtime";
+      at TransformPluginContext._formatLog (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8865:39)
+      at TransformPluginContext.error (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8862:14)
+      at resolveId (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:26552:18)
+      at async file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:26651:23
+      at async Promise.all (index 3)
+      at async TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:26624:4)
+      at async EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:14)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+2:40:54 p.m. [vite] Internal server error: Failed to resolve import "./catalog-menu.css" from "frontend/main.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx:4:7
+  2  |  import { createRoot } from "react-dom/client";
+  3  |  import "./styles.css";
+  4  |  import "./catalog-menu.css";
+     |          ^
+  5  |  var _jsxFileName = "C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx";
+  6  |  import { jsxDEV as _jsxDEV, Fragment as _Fragment } from "react/jsx-dev-runtime";
+      at TransformPluginContext._formatLog (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8865:39)
+      at TransformPluginContext.error (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8862:14)
+      at resolveId (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:26552:18)
+      at async file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:26651:23
+      at async Promise.all (index 3)
+      at async TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:26624:4)
+      at async EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:14)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+2:40:54 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+2:40:54 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+2:40:54 p.m. [vite] (client) Pre-transform error: Failed to resolve import "./catalog-menu.css" from "frontend/main.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx:4:7
+  2  |  import { createRoot } from "react-dom/client";
+  3  |  import "./styles.css";
+  4  |  import "./catalog-menu.css";
+     |          ^
+  5  |  var _jsxFileName = "C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx";
+  6  |  import { jsxDEV as _jsxDEV, Fragment as _Fragment } from "react/jsx-dev-runtime";
+2:40:54 p.m. [vite] (client) Pre-transform error: Failed to resolve import "./catalog-menu.css" from "frontend/main.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx:4:7
+  2  |  import { createRoot } from "react-dom/client";
+  3  |  import "./styles.css";
+  4  |  import "./catalog-menu.css";
+     |          ^
+  5  |  var _jsxFileName = "C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx";
+  6  |  import { jsxDEV as _jsxDEV, Fragment as _Fragment } from "react/jsx-dev-runtime";
+2:42:41 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+2:42:41 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+2:51:34 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+2:51:34 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:00:53 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:00:53 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:00:53 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:01:06 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:01:06 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:01:06 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:02:22 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:02:22 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:02:22 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:05:02 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:05:03 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:05:03 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:10:17 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:10:17 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:13:09 p.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+3:40:06 p.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+3:45:10 p.m. [vite] Internal server error: Failed to resolve import "./business-registration.css" from "frontend/main.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx:6:7
+  4  |  import "./catalog-menu.css";
+  5  |  import "./gallery.css";
+  6  |  import "./business-registration.css";
+     |          ^
+  7  |  var _jsxFileName = "C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx";
+  8  |  import { jsxDEV as _jsxDEV, Fragment as _Fragment } from "react/jsx-dev-runtime";
+      at TransformPluginContext._formatLog (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8865:39)
+      at TransformPluginContext.error (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8862:14)
+      at resolveId (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:26552:18)
+      at async file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:26651:23
+      at async Promise.all (index 5)
+      at async TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:26624:4)
+      at async EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:14)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+3:45:10 p.m. [vite] (client) Pre-transform error: Failed to resolve import "./business-registration.css" from "frontend/main.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx:6:7
+  4  |  import "./catalog-menu.css";
+  5  |  import "./gallery.css";
+  6  |  import "./business-registration.css";
+     |          ^
+  7  |  var _jsxFileName = "C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx";
+  8  |  import { jsxDEV as _jsxDEV, Fragment as _Fragment } from "react/jsx-dev-runtime";
+3:45:10 p.m. [vite] Internal server error: Failed to resolve import "./business-registration.css" from "frontend/main.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx:6:7
+  4  |  import "./catalog-menu.css";
+  5  |  import "./gallery.css";
+  6  |  import "./business-registration.css";
+     |          ^
+  7  |  var _jsxFileName = "C:/Users/moram/Downloads/Programacion/Tourist/frontend/main.tsx";
+  8  |  import { jsxDEV as _jsxDEV, Fragment as _Fragment } from "react/jsx-dev-runtime";
+      at TransformPluginContext._formatLog (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8865:39)
+      at TransformPluginContext.error (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8862:14)
+      at resolveId (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:26552:18)
+      at async file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:26651:23
+      at async Promise.all (index 5)
+      at async TransformPluginContext.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:26624:4)
+      at async EnvironmentPluginContainer.transform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:8636:14)
+      at async loadAndTransform (file:///C:/Users/moram/Downloads/Programacion/Tourist/node_modules/vite/dist/node/chunks/node.js:20112:26)
+3:45:10 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+3:45:10 p.m. [vite] (client) [console.error] [vite] Failed to reload /frontend/main.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+3:56:38 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:56:43 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:57:04 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:57:37 p.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+3:57:39 p.m. [vite] (client) [console.error] You are calling ReactDOMClient.createRoot() on a container that has already been passed to createRoot() before. Instead, call root.render() on the existing root instead if you want to update it.
+3:58:03 p.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+3:58:04 p.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+4:00:51 p.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+4:00:56 p.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
+4:01:02 p.m. [vite] (client) [console.warn] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used.
