@@ -38,6 +38,27 @@ const apiImage = (path: string) => path.startsWith('http') ? path : `${API_ORIGI
 // Un costo cero representa una prestación incluida; los valores null se consultan con el proveedor.
 const money = (value?: string | number | null) => value == null ? 'Consultar' : Number(value) === 0 ? 'Incluido' : `$ ${Number(value).toLocaleString('es-CO')}`;
 
+type IconName = 'sparkles' | 'bed' | 'utensils' | 'compass' | 'map' | 'calendar' | 'landmark' | 'image' | 'heart' | 'arrow' | 'pin' | 'chevron';
+
+// SVGs ligeros basados en el lenguaje visual de Lucide, sin cargar una fuente de iconos externa.
+function NavIcon({ name, className = '' }: { name: IconName; className?: string }) {
+  const shapes: Record<IconName, React.ReactNode> = {
+    sparkles: <><path d="m12 3 1.9 5.8L20 11l-6.1 2.2L12 19l-2-5.8L4 11l6-2.2L12 3Z"/><path d="m19 14 1.1 2.9L23 18l-2.9 1.1L19 22l-1.1-2.9L15 18l2.9-1.1L19 14Z"/></>,
+    bed: <><path d="M3 18v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5"/><path d="M3 15h18M5 11V8a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3M3 18v2m18-2v2"/></>,
+    utensils: <><path d="M7 3v7m-3-7v4a3 3 0 0 0 6 0V3M7 10v11m10-18v18m0-18c3 2 4 6 0 9"/></>,
+    compass: <><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/></>,
+    map: <><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"/><path d="M9 3v15m6-12v15"/></>,
+    calendar: <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></>,
+    landmark: <><path d="m3 10 9-7 9 7M5 10v9m5-9v9m4-9v9m5-9v9M3 21h18M2 19h20"/></>,
+    image: <><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></>,
+    heart: <><path d="M20.8 8.8c0 5.5-8.8 11-8.8 11s-8.8-5.5-8.8-11A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 8.8 2.4Z"/></>,
+    arrow: <><path d="M7 17 17 7M7 7h10v10"/></>,
+    pin: <><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></>,
+    chevron: <path d="m7 10 5 5 5-5"/>,
+  };
+  return <svg className={className} viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">{shapes[name]}</svg>;
+}
+
 // El navegador lee los lugares desde la API; el contenido ya no se duplica como un arreglo local.
 async function getData<T>(path: string): Promise<T> {
   const response = await fetch(`${API}${path}`, { cache: 'no-store' });
@@ -120,6 +141,8 @@ function App() {
   const [query, setQuery] = useState('');
   const [saved, setSaved] = useState<string[]>([]);
   const [menu, setMenu] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<'explore' | 'planner' | null>(null);
+  const [pinnedDropdown, setPinnedDropdown] = useState<'explore' | 'planner' | null>(null);
   const [managedHotels, setManagedHotels] = useState<(Business & { roomTypes: RoomType[] })[]>([]);
   const [hotelManagementError, setHotelManagementError] = useState('');
   const [businessDetailSaving, setBusinessDetailSaving] = useState<string | null>(null);
@@ -536,7 +559,24 @@ function App() {
     return categoryMatches && searchable.toLowerCase().includes(query.toLowerCase());
   }), [places, active, query]);
 
-  const link = (to: string, label: React.ReactNode, className?: string) => <a className={className} href={to} onClick={(event) => { event.preventDefault(); go(to); setMenu(false); }}>{label}</a>;
+  const showDropdown = (name: 'explore' | 'planner') => {
+    setOpenDropdown(name);
+    setPinnedDropdown((current) => current && current !== name ? null : current);
+  };
+  const leaveDropdown = (name: 'explore' | 'planner') => {
+    if (pinnedDropdown !== name) setOpenDropdown((current) => current === name ? null : current);
+  };
+  const toggleDropdown = (name: 'explore' | 'planner') => {
+    if (pinnedDropdown === name) {
+      setPinnedDropdown(null);
+      setOpenDropdown(null);
+    } else {
+      setPinnedDropdown(name);
+      setOpenDropdown(name);
+    }
+  };
+  const closeDropdowns = () => { setOpenDropdown(null); setPinnedDropdown(null); };
+  const link = (to: string, label: React.ReactNode, className?: string) => <a className={className} href={to} onClick={(event) => { event.preventDefault(); go(to); setMenu(false); closeDropdowns(); }}>{label}</a>;
   const municipalityLink = () => link('/municipio', <>Conoce Puerto Escondido <span>→</span></>, 'dark-btn');
   const mediaSource = (place: Business, media: Business['media'][number]) => media.imageUrl
     ? (media.imageUrl.startsWith('http') ? media.imageUrl : apiImage(media.imageUrl))
@@ -608,16 +648,16 @@ function App() {
     </section>
   </div>;
 
-  const exploreOption = (to: string, icon: string, title: string, subtitle: string) => link(to, <><span className="option-icon">{icon}</span><span className="option-copy"><b>{title}</b><small>{subtitle}</small></span><span className="option-arrow">↗</span></>, 'dropdown-option');
+  const exploreOption = (to: string, title: string, subtitle: string, image: string) => link(to, <><img className="dropdown-option-image" src={image} alt="" loading="lazy"/><span className="option-copy"><b>{title}</b><small>{subtitle}</small></span><span className="option-arrow" aria-hidden="true">↗</span></>, 'dropdown-option');
   const authToast = authNotice && <aside className="auth-toast" role="status" aria-live="polite"><span className="auth-toast-icon">i</span><div className="auth-toast-content"><p>{authNotice === 'favorite' ? <>Para guardar este lugar, debes <b>iniciar sesión</b> o crear una cuenta.</> : <>Para ver tus guardados, debes <b>iniciar sesión</b> o registrarte.</>}</p><div className="auth-toast-actions"><button onClick={() => continueFavoriteAuth('login')}>Iniciar sesión</button><span>·</span><button onClick={() => continueFavoriteAuth('register')}>Registrarme</button></div></div><button className="auth-toast-close" onClick={closeFavoritePrompt} aria-label="Cerrar aviso">×</button><span className="auth-toast-timer"/></aside>;  const authDialog = authOpen && <div className="modal-backdrop" onMouseDown={(event) => {if(event.target === event.currentTarget)closeAuth();}}><section className="community-modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="google-title"><button className="modal-close" onClick={closeAuth} aria-label="Cerrar">×</button><span className="modal-mark">P.</span><span className="eyebrow">{afterLoginAction === 'business' ? 'RED DE ANFITRIONES' : 'COMUNIDAD PUERTO'}</span><h2 id="google-title">{afterLoginAction === 'business' ? 'Publica lo que haces.' : 'Entra a la comunidad.'}</h2><p>{afterLoginAction === 'business' ? 'Crea tu cuenta de anfitrión para registrar hoteles, restaurantes o experiencias de Puerto Escondido.' : 'Inicia sesión para guardar tus lugares favoritos y compartir fotos con la comunidad.'}</p><div className="google-button-wrap"><div id="google-signin-button"/></div><div className="auth-divider"><span>O CONTINÚA CON TU CORREO</span></div><div className="auth-tabs"><button type="button" className={authMode === 'login' ? 'active' : ''} onClick={() => {setAuthMode('login');setGoogleError('');}}>Iniciar sesión</button><button type="button" className={authMode === 'register' ? 'active' : ''} onClick={() => {setAuthMode('register');setAuthAccountType(afterLoginAction === 'business' ? 'BUSINESS_OWNER' : authAccountType);setGoogleError('');}}>Crear cuenta</button></div><form className="auth-form" onSubmit={submitTraditionalAuth}>{authMode === 'register' && <><label>Nombre completo<input type="text" autoComplete="name" minLength={2} maxLength={150} required value={authFullName} onChange={(event) => setAuthFullName(event.target.value)} placeholder="Tu nombre"/></label>{afterLoginAction !== 'business' && <label>Tipo de cuenta<select value={authAccountType} onChange={(event) => setAuthAccountType(event.target.value as 'TOURIST' | 'BUSINESS_OWNER')}><option value="TOURIST">Viajero</option><option value="BUSINESS_OWNER">Anfitrión · hoteles, restaurantes y tours</option></select></label>}</>}<label>Correo electrónico<input type="email" autoComplete="email" required value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} placeholder="tu@correo.com"/></label><label>Contraseña<input type="password" autoComplete={authMode === 'register' ? 'new-password' : 'current-password'} minLength={authMode === 'register' ? 8 : 1} maxLength={72} required value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} placeholder={authMode === 'register' ? 'Mínimo 8 caracteres' : 'Tu contraseña'}/></label>{googleError && <p className="modal-error">{googleError}</p>}<button className="dark-btn auth-submit" type="submit" disabled={authLoading}>{authLoading ? 'Un momento…' : authMode === 'register' ? 'Crear cuenta' : 'Iniciar sesión'} <span>→</span></button></form><small>{afterLoginAction === 'business' ? 'Esta cuenta se creará como anfitrión. Tu negocio pasará a revisión antes de publicarse.' : 'Tu nombre aparecerá junto a las fotos que publiques.'}</small></section></div>;
-  const navLink = (to: string, label: React.ReactNode) => link(to, label, `nav-link${path === to ? ' active-nav' : ''}`);
+  const navLink = (to: string, label: string) => link(to, <span>{label}</span>, `nav-link${path === to ? ' active-nav' : ''}`);
   const header = <><div className="announcement"><span>✦</span> Caribe de Córdoba · naturaleza, cultura y mar <i>—</i> Puerto Escondido</div><header className="nav destination-nav">
-    <a className="brand group" href="/" onClick={(event) => { event.preventDefault(); go('/'); }}><span className="brand-mark">P.</span><span>PUERTO<br/><small>ESCONDIDO</small></span></a>
-    <button className="mobile-menu" onClick={() => setMenu(!menu)} aria-label={menu ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menu} aria-controls="primary-navigation"><span/><span/><span/></button>
-    <nav id="primary-navigation" className={menu ? 'open' : ''}>
-      <details className="nav-dropdown"><summary>Explora <span className="nav-chevron">⌄</span></summary><div className="dropdown-panel destination-explore-panel"><div className="dropdown-main"><div className="dropdown-heading"><div><span>DESCUBRE EL DESTINO</span><b>¿Qué plan tienes en mente?</b></div><small className="dropdown-location">Puerto Escondido, Córdoba</small></div><div className="dropdown-options">{exploreOption('/lugares','✧','Todos los lugares','Alojamientos, sabores y más')}{exploreOption('/lugares?categoria=Hoteles','⌂','Hoteles y cabañas','Descansa cerca del Caribe')}{exploreOption('/lugares?categoria=Restaurantes','◒','Restaurantes','Sabores de la costa')}{exploreOption('/lugares?categoria=Tours','⌖','Tours y experiencias','Explora con gente local')}</div></div><aside className="dropdown-feature" style={{backgroundImage:`linear-gradient(180deg,rgba(14,51,40,.18),rgba(12,46,37,.95)),url('${picture(town?.coverImageUrl)}')`}}><span className="dropdown-feature-tag">✦ &nbsp; RINCONES POR DESCUBRIR</span><h3>Puerto Escondido<br/><em>de cerca.</em></h3><p>Arma una visita a tu ritmo y encuentra lo esencial para empezar.</p>{link('/planea-tu-viaje',<>Planea tu visita <span>→</span></>,'dropdown-map-link')}</aside></div></details>
-      <details className="nav-dropdown planner-dropdown"><summary>Planea tu viaje <span className="nav-chevron">⌄</span></summary><div className="planner-menu-panel"><span className="planner-menu-kicker">ANTES DE SALIR</span>{link('/planea-tu-viaje',<>Organiza tu visita <span>→</span></>,'planner-menu-option')}<a className="planner-menu-option" href="https://www.google.com/maps/dir/?api=1&destination=Puerto+Escondido%2C+C%C3%B3rdoba%2C+Colombia" target="_blank" rel="noreferrer">Cómo llegar <span>↗</span></a>{link('/mapa',<>Mapa del municipio <span>↗</span></>,'planner-menu-option')}</div></details>
-      {navLink('/municipio','El municipio')}{navLink('/eventos','Eventos')}{navLink('/galeria','Galería')}{currentUser?.role && ['BUSINESS_OWNER','SUPERADMIN','ALCALDIA_ADMIN'].includes(currentUser.role) ? link('/mis-hoteles',<>Mi negocio <span>↗</span></>,'mobile-register-link') : null}
+    <a className="brand group" href="/" onClick={(event) => { event.preventDefault(); go('/'); setMenu(false); closeDropdowns(); }}><span className="brand-mark">P.</span><span>PUERTO<br/><small>ESCONDIDO</small></span></a>
+    <button className="mobile-menu" onClick={() => { if (menu) closeDropdowns(); setMenu(!menu); }} aria-label={menu ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={menu} aria-controls="primary-navigation"><span/><span/><span/></button>
+    <nav id="primary-navigation" className={menu ? 'open' : ''} onKeyDown={(event) => { if (event.key === 'Escape') closeDropdowns(); }}>
+      <details className="nav-dropdown" open={openDropdown === 'explore'} onMouseEnter={() => showDropdown('explore')} onMouseLeave={() => leaveDropdown('explore')}><summary onClick={(event) => { event.preventDefault(); toggleDropdown('explore'); }} aria-expanded={openDropdown === 'explore'}><span>Explora</span></summary><div className="dropdown-panel destination-explore-panel"><div className="dropdown-main"><div className="dropdown-heading"><div><span>DESCUBRE EL DESTINO</span><b>¿Qué plan tienes en mente?</b></div><small className="dropdown-location">Puerto Escondido, Córdoba</small></div><div className="dropdown-options">{exploreOption('/lugares','Todos los lugares','Alojamientos, sabores y más','https://images.unsplash.com/photo-1707738610342-accbdd20fbcf?auto=format&fit=crop&w=420&q=80')}{exploreOption('/lugares?categoria=Hoteles','Hoteles y cabañas','Descansa cerca del Caribe','https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=420&q=80')}{exploreOption('/lugares?categoria=Restaurantes','Restaurantes','Sabores de la costa','https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=420&q=80')}{exploreOption('/lugares?categoria=Tours','Tours y experiencias','Explora con gente local','https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=420&q=80')}</div></div><aside className="dropdown-feature" style={{backgroundImage:`linear-gradient(180deg,rgba(14,51,40,.18),rgba(12,46,37,.95)),url('${picture(town?.coverImageUrl)}')`}}><span className="dropdown-feature-tag">RINCONES POR DESCUBRIR</span><h3>Puerto Escondido<br/><em>de cerca.</em></h3><p>Arma una visita a tu ritmo y encuentra lo esencial para empezar.</p>{link('/planea-tu-viaje',<>Planea tu visita <span aria-hidden="true">↗</span></>,'dropdown-map-link')}</aside></div></details>
+      <details className="nav-dropdown planner-dropdown" open={openDropdown === 'planner'} onMouseEnter={() => showDropdown('planner')} onMouseLeave={() => leaveDropdown('planner')}><summary onClick={(event) => { event.preventDefault(); toggleDropdown('planner'); }} aria-expanded={openDropdown === 'planner'}><NavIcon name="map" className="nav-item-icon h-4 w-4"/><span>Planea tu viaje</span><NavIcon name="chevron" className="nav-chevron h-3 w-3"/></summary><div className="planner-menu-panel"><span className="planner-menu-kicker">ANTES DE SALIR</span>{link('/planea-tu-viaje',<><span className="planner-option-icon"><NavIcon name="sparkles" className="h-4 w-4"/></span><span>Organiza tu visita</span><NavIcon name="arrow" className="planner-option-arrow h-4 w-4"/></>,'planner-menu-option')}<a className="planner-menu-option" href="https://www.google.com/maps/dir/?api=1&destination=Puerto+Escondido%2C+C%C3%B3rdoba%2C+Colombia" target="_blank" rel="noreferrer"><span className="planner-option-icon"><NavIcon name="pin" className="h-4 w-4"/></span><span>Cómo llegar</span><NavIcon name="arrow" className="planner-option-arrow h-4 w-4"/></a>{link('/mapa',<><span className="planner-option-icon"><NavIcon name="map" className="h-4 w-4"/></span><span>Mapa del municipio</span><NavIcon name="arrow" className="planner-option-arrow h-4 w-4"/></>,'planner-menu-option')}</div></details>
+      {navLink('/municipio','El municipio')}{navLink('/eventos','Eventos')}{navLink('/galeria','Galería')}{currentUser?.role && ['BUSINESS_OWNER','SUPERADMIN','ALCALDIA_ADMIN'].includes(currentUser.role) ? link('/mis-hoteles','Mi negocio','mobile-register-link') : null}
       {currentUser ? <button type="button" className="mobile-account-action" onClick={() => { signOut(); setMenu(false); }}>Cerrar sesión <span>↗</span></button> : <><button type="button" className="mobile-account-action" onClick={() => { setAfterLoginAction('none'); setAuthMode('login'); setGoogleError(''); setAuthOpen(true); setMenu(false); }}>Iniciar sesión</button>{link('/registrar-negocio',<>Registrar mi negocio <span>↗</span></>,'mobile-register-link')}</>}
     </nav>
     <div className="nav-side">{currentUser && <button className="saved nav-favorites" aria-label="Ver favoritos" onClick={() => go('/favoritos')}>♡ <span>Guardados {saved.length}</span></button>}{currentUser?.role && ['BUSINESS_OWNER','SUPERADMIN','ALCALDIA_ADMIN'].includes(currentUser.role) && link('/mis-hoteles','Mi negocio','login-link')}{currentUser ? <><span className="user-chip">{currentUser.fullName.split(' ')[0]}</span><button className="signout" onClick={signOut}>Salir</button></> : <><button className="login-link" onClick={() => {setAfterLoginAction('none');setAuthMode('login');setGoogleError('');setAuthOpen(true);}}>Iniciar sesión</button>{link('/registrar-negocio',<>Registra tu negocio <span>↗</span></>,'register-link')}</>}</div>
