@@ -140,6 +140,7 @@
 .destination-nav .user-chip { padding: 9px 12px; border-radius: 999px; background: #edf1e9; color: #294a3b; font-size: 11px; font-weight: 700; }
 .destination-nav .signout { padding: 10px 11px; border-radius: 999px; font-size: 11px; font-weight: 600; }
 .destination-nav nav .mobile-register-link { display: none; }
+.destination-nav nav .mobile-account-action { display: none; }
 
 @media (max-width: 1000px) {
   .nav.destination-nav { padding-inline: 24px; gap: 12px; }
