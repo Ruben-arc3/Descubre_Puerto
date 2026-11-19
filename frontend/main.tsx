@@ -9,6 +9,7 @@ import AdminDashboard from './AdminDashboard';
 import './location-hotbar.css';
 import './destination-planner.css';
 import './hotbar.css';
+import './android.css';
 
 // En producción Vite reemplaza esta URL durante el build con el endpoint público de la API.
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
