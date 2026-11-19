@@ -147,3 +147,15 @@ img, video, canvas { max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   .place-detail-modal *, .community-modal *, .lightbox-card * { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+.hero-caption .photo-credit {
+  margin-left: auto;
+  color: #fffdf4;
+  letter-spacing: .08em;
+  text-shadow: 0 1px 6px #071a1570;
+}
+@media (max-width: 650px) {
+  .hero-caption { align-items: center; gap: 9px; bottom: calc(16px + env(safe-area-inset-bottom)); }
+  .hero-caption > span:first-child { display: none; }
+  .hero-caption > span { font-size: 8px; letter-spacing: .08em; }
+}
