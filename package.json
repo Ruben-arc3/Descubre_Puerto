@@ -17,6 +17,7 @@
     "prestart": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:transport-examples": "tsx prisma/seed-transport-examples.ts",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio"
