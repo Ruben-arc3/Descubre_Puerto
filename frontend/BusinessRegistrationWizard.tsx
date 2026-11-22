@@ -3,7 +3,7 @@ import { apiFetch } from './api';
 import './business-wizard.css';
 import OpenMapPicker from './OpenMapPicker';
 
-type CategorySlug = 'hoteles' | 'restaurantes' | 'tours';
+type CategorySlug = 'hoteles' | 'restaurantes' | 'tours' | 'transportes';
 type OfferDraft = { name: string; description: string; price: string; priceUnit: string };
 type MenuDraft = { name: string; category: string; description: string; price: string };
 type BusinessDraft = {
@@ -23,7 +23,7 @@ type BusinessDraft = {
 
 const initialDraft = (categorySlug: CategorySlug): BusinessDraft => ({
   categorySlug, name: '', zone: '', shortDescription: '', description: '', address: '', whatsappNumber: '',
-  latitude: '9.02', longitude: '-76.18', basePrice: '', priceUnit: categorySlug === 'hoteles' ? 'noche' : categorySlug === 'tours' ? 'persona' : 'plato',
+  latitude: '9.02', longitude: '-76.18', basePrice: '', priceUnit: categorySlug === 'hoteles' ? 'noche' : categorySlug === 'tours' ? 'persona' : categorySlug === 'transportes' ? 'trayecto' : 'plato',
   checkInTime: '15:00', checkOutTime: '11:00', maxGuestsPerUnit: '2', amenities: '', roomName: 'Habitación estándar',
   roomDescription: '', maxAdults: '2', maxChildren: '0', bedDescription: '', areaSqm: '', quantity: '1',
   nightlyRate: '', breakfastIncluded: false, refundable: true, cancellationPolicy: 'Cancelación flexible',
@@ -37,12 +37,12 @@ const initialDraft = (categorySlug: CategorySlug): BusinessDraft => ({
 
 const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 const splitList = (value: string) => value.split(',').map((part) => part.trim()).filter(Boolean);
-const categoryNames: Record<CategorySlug, string> = { hoteles: 'Alojamiento', restaurantes: 'Restaurante', tours: 'Tour o experiencia' };
+const categoryNames: Record<CategorySlug, string> = { hoteles: 'Alojamiento', restaurantes: 'Restaurante', tours: 'Tour o experiencia', transportes: 'Transporte' };
 
 type Props = { api: string; initialCategorySlug: string; onBack: () => void; onCreated: (business: { id: string; name: string }) => void };
 
 export default function BusinessRegistrationWizard({ api, initialCategorySlug, onBack, onCreated }: Props) {
-  const normalizedCategory = (['hoteles', 'restaurantes', 'tours'].includes(initialCategorySlug) ? initialCategorySlug : 'hoteles') as CategorySlug;
+  const normalizedCategory = (['hoteles', 'restaurantes', 'tours', 'transportes'].includes(initialCategorySlug) ? initialCategorySlug : 'hoteles') as CategorySlug;
   const [draft, setDraft] = useState<BusinessDraft>(() => initialDraft(normalizedCategory));
   const [step, setStep] = useState(0);
   const [files, setFiles] = useState<File[]>([]);
@@ -64,7 +64,9 @@ export default function BusinessRegistrationWizard({ api, initialCategorySlug, o
     ? ['Información general', 'Fotos', 'Alojamiento', 'Precio y normas', 'Revisar y finalizar']
     : draft.categorySlug === 'restaurantes'
       ? ['Información general', 'Fotos', 'Restaurante', 'Menú y precios', 'Revisar y finalizar']
-      : ['Información general', 'Fotos', 'Experiencia', 'Qué ofrece el tour', 'Revisar y finalizar'];
+      : draft.categorySlug === 'tours'
+        ? ['Información general', 'Fotos', 'Experiencia', 'Qué ofrece el tour', 'Revisar y finalizar']
+        : ['Información general', 'Fotos', 'Rutas y horarios', 'Tarifas', 'Revisar y finalizar'];
   const progress = useMemo(() => ((step + 1) / labels.length) * 100, [step, labels.length]);
   const set = <K extends keyof BusinessDraft>(key: K, value: BusinessDraft[K]) => setDraft((current) => ({ ...current, [key]: value }));
   const input = (key: keyof BusinessDraft, label: string, placeholder = '', props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
@@ -110,6 +112,12 @@ export default function BusinessRegistrationWizard({ api, initialCategorySlug, o
         setError('Agrega al menos una actividad o modalidad con su precio.'); return false;
       }
     }
+    if (step === 2 && draft.categorySlug === 'transportes' && draft.schedules.trim().length < 2) {
+      setError('Indica los horarios habituales o aclara que se confirma por WhatsApp.'); return false;
+    }
+    if (step === 3 && draft.categorySlug === 'transportes' && !offers.some((offer) => offer.name.trim())) {
+      setError('Agrega al menos una ruta o modalidad de transporte.'); return false;
+    }
     return true;
   };
 
@@ -132,7 +140,7 @@ export default function BusinessRegistrationWizard({ api, initialCategorySlug, o
           : draft.basePrice ? Number(draft.basePrice)
             : draft.categorySlug === 'restaurantes' && draft.averageSpend ? Number(draft.averageSpend)
               : draft.categorySlug === 'tours' && offers.find((offer) => Number(offer.price) > 0) ? Number(offers.find((offer) => Number(offer.price) > 0)!.price) : null,
-        priceUnit: draft.categorySlug === 'hoteles' ? 'noche' : draft.priceUnit || (draft.categorySlug === 'tours' ? offers.find((offer) => Number(offer.price) > 0)?.priceUnit || 'persona' : 'plato'),
+        priceUnit: draft.categorySlug === 'hoteles' ? 'noche' : draft.priceUnit || (draft.categorySlug === 'tours' ? offers.find((offer) => Number(offer.price) > 0)?.priceUnit || 'persona' : draft.categorySlug === 'transportes' ? 'trayecto' : 'plato'),
       });
       onCreated(created);
 
@@ -169,7 +177,7 @@ export default function BusinessRegistrationWizard({ api, initialCategorySlug, o
             ...offer, price: offer.price ? Number(offer.price) : null, description: offer.description || undefined, priceUnit: offer.priceUnit || undefined,
           });
         }
-      } else {
+      } else if (draft.categorySlug === 'tours') {
         await request(`/hotel-management/${created.id}/details`, 'PUT', {
           durationMinutes: Number(draft.durationMinutes), schedules: splitList(draft.schedules),
           meetingPoint: draft.meetingPoint, minGroupSize: Number(draft.minGroupSize) || 1,
@@ -181,6 +189,15 @@ export default function BusinessRegistrationWizard({ api, initialCategorySlug, o
         });
         for (const offer of offers.filter((item) => item.name.trim() && Number(item.price) > 0)) {
           await request(`/hotel-management/${created.id}/services`, 'POST', { ...offer, price: Number(offer.price), description: offer.description || undefined, priceUnit: offer.priceUnit || draft.priceUnit || undefined });
+        }
+      } else {
+        for (const offer of offers.filter((item) => item.name.trim())) {
+          await request(`/hotel-management/${created.id}/services`, 'POST', {
+            ...offer,
+            price: offer.price ? Number(offer.price) : null,
+            priceUnit: offer.priceUnit || draft.priceUnit || 'trayecto',
+            description: [offer.description.trim(), draft.meetingPoint.trim() ? `Salida: ${draft.meetingPoint.trim()}` : '', draft.schedules.trim() ? `Horarios: ${draft.schedules.trim()}` : '', draft.accessibilityInfo.trim()].filter(Boolean).join(' · ') || undefined,
+          });
         }
       }
 
@@ -223,10 +240,10 @@ export default function BusinessRegistrationWizard({ api, initialCategorySlug, o
   const renderGeneral = () => <div className="wizard-panel-grid">
     <div className="wizard-panel-intro"><span className="wizard-kicker">PRESENTACIÓN</span><h2>Cuéntanos de tu negocio.</h2><p>Esta información permitirá que visitantes y residentes te encuentren y sepan qué ofreces.</p><div className="wizard-tip">✦ &nbsp; Describe tu propuesta con palabras que usarías para invitar a alguien a conocerla.</div></div>
     <div className="wizard-fields">
-      <label>Tipo de establecimiento<select value={draft.categorySlug} onChange={(event) => { const value = event.target.value as CategorySlug; set('categorySlug', value); set('priceUnit', value === 'hoteles' ? 'noche' : value === 'tours' ? 'persona' : 'plato'); }}>{Object.entries(categoryNames).map(([key, value]) => <option key={key} value={key}>{value}</option>)}</select></label>
+      <label>Tipo de establecimiento<select value={draft.categorySlug} onChange={(event) => { const value = event.target.value as CategorySlug; set('categorySlug', value); set('priceUnit', value === 'hoteles' ? 'noche' : value === 'tours' ? 'persona' : value === 'transportes' ? 'trayecto' : 'plato'); }}>{Object.entries(categoryNames).map(([key, value]) => <option key={key} value={key}>{value}</option>)}</select></label>
       {input('name', 'Nombre comercial', 'Ej. Posada Brisa Marina')}{input('zone', 'Zona o localidad', 'Centro, Playa, El Prieto…')}
       {input('shortDescription', 'Descripción breve', 'Una frase que te haga destacar', { maxLength: 160, className: 'wizard-field-wide' })}
-      {text('description', 'Descripción completa', 'Describe tu espacio, tu cocina o la experiencia que ofreces.', 4)}
+      {text('description', 'Descripción completa', draft.categorySlug === 'transportes' ? 'Describe tus rutas, tipos de vehículos, paradas y condiciones del servicio.' : 'Describe tu espacio, tu cocina o la experiencia que ofreces.', 4)}
       {input('whatsappNumber', 'WhatsApp de contacto', '+57 300 000 0000', { type: 'tel' })}
       <div className="wizard-field-wide wizard-map-section"><b>Ubicación del establecimiento</b><small>Busca una referencia y ajusta el pin directamente en el mapa.</small><OpenMapPicker api={api} latitude={draft.latitude} longitude={draft.longitude} address={draft.address} onSelect={(latitude,longitude,address) => setDraft((current) => ({...current,latitude,longitude,...(address !== undefined ? {address} : {})}))}/></div>
     </div>
@@ -269,6 +286,11 @@ export default function BusinessRegistrationWizard({ api, initialCategorySlug, o
     </div>
   </div>;
 
+  const renderTransport = () => <div className="wizard-panel-grid">
+    <div className="wizard-panel-intro"><span className="wizard-kicker">RUTAS Y HORARIOS</span><h2>¿Cómo se mueve tu servicio?</h2><p>Indica las rutas, puntos de salida y horarios para que los viajeros puedan consultarte.</p><div className="wizard-tip">Los horarios pueden cambiar; aclara si deben confirmarse antes del viaje.</div></div>
+    <div className="wizard-fields">{input('meetingPoint', 'Punto de salida o abordaje', 'Terminal, parque principal…')}{input('schedules', 'Horarios o frecuencia', 'Diario, consultar por WhatsApp', { className: 'wizard-field-wide' })}{input('accessibilityInfo', 'Equipaje, accesibilidad u observaciones', 'Equipaje permitido, tipo de vehículo…', { className: 'wizard-field-wide' })}</div>
+  </div>;
+
   const renderOffer = () => draft.categorySlug === 'hoteles' ? <div className="wizard-panel-grid">
     <div className="wizard-panel-intro"><span className="wizard-kicker">TARIFA Y REGLAS</span><h2>Deja claras las condiciones.</h2><p>Esta tarifa será la referencia de la primera habitación que publicarás.</p></div>
     <div className="wizard-fields">{input('nightlyRate', 'Precio por noche (COP)', '185000', { type: 'number', min: 1 })}
@@ -283,6 +305,10 @@ export default function BusinessRegistrationWizard({ api, initialCategorySlug, o
       <div className="wizard-subheading wizard-field-wide"><span>Otros servicios</span><small>Reservas, eventos, domicilio u ofertas adicionales.</small></div>
       {offers.map((offer, index) => <article className="wizard-dynamic-card wizard-field-wide" key={`offer-${index}`}><div className="wizard-inline-fields"><label>Servicio<input value={offer.name} onChange={(event) => setOffers((items) => items.map((entry, i) => i === index ? { ...entry, name: event.target.value } : entry))} placeholder="Domicilio, desayuno, evento…"/></label><label>Precio (opcional)<input type="number" min="1" value={offer.price} onChange={(event) => setOffers((items) => items.map((entry, i) => i === index ? { ...entry, price: event.target.value } : entry))} placeholder="Consultar"/></label><label className="wizard-field-wide">Descripción<input value={offer.description} onChange={(event) => setOffers((items) => items.map((entry, i) => i === index ? { ...entry, description: event.target.value } : entry))} placeholder="Detalles del servicio"/></label></div></article>)}<button type="button" className="wizard-add-row wizard-field-wide" onClick={() => setOffers((items) => [...items, { name: '', description: '', price: '', priceUnit: '' }])}>＋ Agregar otro servicio</button>
     </div>
+  </div> : draft.categorySlug === 'transportes' ? <div className="wizard-panel-grid">
+    <div className="wizard-panel-intro"><span className="wizard-kicker">RUTAS Y TARIFAS</span><h2>Publica tus trayectos.</h2><p>Agrega cada ruta o modalidad con su tarifa, si está disponible.</p></div>
+    <div className="wizard-fields wizard-list-fields">{input('basePrice', 'Tarifa de referencia (COP)', 'Consultar', { type: 'number', min: 1 })}{input('priceUnit', 'Unidad de cobro', 'trayecto')}
+      {offers.map((offer, index) => <article className="wizard-dynamic-card wizard-field-wide" key={`transport-offer-${index}`}><div className="wizard-dynamic-heading"><b>Ruta {index + 1}</b>{offers.length > 1 && <button type="button" onClick={() => setOffers((items) => items.filter((_, itemIndex) => itemIndex !== index))}>Quitar</button>}</div><div className="wizard-inline-fields"><label>Origen → destino<input value={offer.name} onChange={(event) => setOffers((items) => items.map((entry, i) => i === index ? { ...entry, name: event.target.value } : entry))} placeholder="Montería → Puerto Escondido"/></label><label>Tarifa (COP, opcional)<input type="number" min="1" value={offer.price} onChange={(event) => setOffers((items) => items.map((entry, i) => i === index ? { ...entry, price: event.target.value } : entry))} placeholder="Consultar"/></label><label>Se cobra por<input value={offer.priceUnit} onChange={(event) => setOffers((items) => items.map((entry, i) => i === index ? { ...entry, priceUnit: event.target.value } : entry))} placeholder="persona o trayecto"/></label><label className="wizard-field-wide">Detalles<input value={offer.description} onChange={(event) => setOffers((items) => items.map((entry, i) => i === index ? { ...entry, description: event.target.value } : entry))} placeholder="Paradas, duración aproximada, tipo de servicio…"/></label></div></article>)}<button type="button" className="wizard-add-row wizard-field-wide" onClick={() => setOffers((items) => [...items, { name: '', description: '', price: '', priceUnit: '' }])}>＋ Agregar otra ruta</button></div>
   </div> : <div className="wizard-panel-grid">
     <div className="wizard-panel-intro"><span className="wizard-kicker">SALIDAS Y MODALIDADES</span><h2>Arma tu oferta.</h2><p>Registra modalidades concretas para que el visitante compare y consulte tu experiencia.</p></div>
     <div className="wizard-fields wizard-list-fields">{input('basePrice', 'Precio de referencia (COP)', '90000', { type: 'number', min: 1 })}{input('priceUnit', 'Unidad de cobro', 'Por persona o por grupo')}
@@ -291,12 +317,12 @@ export default function BusinessRegistrationWizard({ api, initialCategorySlug, o
     </div>
   </div>;
 
-  const renderReview = () => <div className="wizard-review"><div><span className="wizard-kicker">REPASO FINAL</span><h2>Así verán tu propuesta.</h2><p>Revisa los datos antes de enviar el establecimiento a revisión.</p></div><div className="wizard-review-grid"><article><small>ESTABLECIMIENTO</small><h3>{draft.name || 'Nombre de tu negocio'}</h3><p>{categoryNames[draft.categorySlug]} · {draft.zone || 'Zona'}</p><p>{draft.shortDescription}</p><b>{draft.whatsappNumber}</b></article><article><small>UBICACIÓN</small><h3>{draft.address || 'Dirección o referencia'}</h3><p>{draft.latitude}, {draft.longitude}</p></article><article><small>OFERTA</small><h3>{draft.categorySlug === 'hoteles' ? draft.roomName : draft.categorySlug === 'restaurantes' ? menuItems.find((item) => item.name)?.name || 'Carta por completar' : offers.find((item) => item.name)?.name || 'Tour'}</h3><p>{draft.categorySlug === 'hoteles' ? `${draft.nightlyRate ? Number(draft.nightlyRate).toLocaleString('es-CO') : ''} COP / noche` : draft.categorySlug === 'restaurantes' ? 'Menú y servicios del restaurante' : `${draft.durationMinutes} min · ${draft.meetingPoint}`}</p></article><article><small>CONTENIDO</small><h3>{files.length} {files.length === 1 ? 'fotografía' : 'fotografías'}</h3><p>El perfil quedará pendiente de validación antes de publicarse.</p></article></div></div>;
+  const renderReview = () => <div className="wizard-review"><div><span className="wizard-kicker">REPASO FINAL</span><h2>Así verán tu propuesta.</h2><p>Revisa los datos antes de enviar el establecimiento a revisión.</p></div><div className="wizard-review-grid"><article><small>ESTABLECIMIENTO</small><h3>{draft.name || 'Nombre de tu negocio'}</h3><p>{categoryNames[draft.categorySlug]} · {draft.zone || 'Zona'}</p><p>{draft.shortDescription}</p><b>{draft.whatsappNumber}</b></article><article><small>UBICACIÓN</small><h3>{draft.address || 'Dirección o referencia'}</h3><p>{draft.latitude}, {draft.longitude}</p></article><article><small>OFERTA</small><h3>{draft.categorySlug === 'hoteles' ? draft.roomName : draft.categorySlug === 'restaurantes' ? menuItems.find((item) => item.name)?.name || 'Carta por completar' : offers.find((item) => item.name)?.name || (draft.categorySlug === 'transportes' ? 'Ruta de transporte' : 'Tour')}</h3><p>{draft.categorySlug === 'hoteles' ? `${draft.nightlyRate ? Number(draft.nightlyRate).toLocaleString('es-CO') : ''} COP / noche` : draft.categorySlug === 'restaurantes' ? 'Menú y servicios del restaurante' : draft.categorySlug === 'transportes' ? `${draft.schedules || 'Horarios por confirmar'} · ${draft.priceUnit}` : `${draft.durationMinutes} min · ${draft.meetingPoint}`}</p></article><article><small>CONTENIDO</small><h3>{files.length} {files.length === 1 ? 'fotografía' : 'fotografías'}</h3><p>El perfil quedará pendiente de validación antes de publicarse.</p></article></div></div>;
 
   const renderStep = () => {
     if (step === 0) return renderGeneral();
     if (step === 1) return <div className="wizard-panel-grid"><div className="wizard-panel-intro"><span className="wizard-kicker">FOTOGRAFÍAS</span><h2>Muéstrales el lugar.</h2><p>Sube fotos propias y con buena luz. La primera será la portada de tu ficha.</p><div className="wizard-tip">JPG, PNG o WebP · hasta 5 MB cada una · máximo 8 fotos.</div></div><div className="wizard-photo-panel"><label className="wizard-dropzone"><span className="wizard-photo-icon">▧</span><b>Arrastra o selecciona tus fotos</b><small>Las imágenes se guardan en la base de datos del proyecto.</small><span className="wizard-file-button">＋ Cargar fotos</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => { addFiles(event.target.files); event.target.value = ''; }}/></label><div className="wizard-photo-grid">{previews.map((src, index) => <figure key={`${src}-${index}`}><img src={src} alt={`Vista previa ${index + 1}`}/><figcaption>{index === 0 ? 'Portada' : `Foto ${index + 1}`}<button type="button" onClick={() => setFiles((items) => items.filter((_, itemIndex) => itemIndex !== index))}>×</button></figcaption></figure>)}</div></div></div>;
-    if (step === 2) return draft.categorySlug === 'hoteles' ? renderAccommodation() : draft.categorySlug === 'restaurantes' ? renderRestaurant() : renderTour();
+    if (step === 2) return draft.categorySlug === 'hoteles' ? renderAccommodation() : draft.categorySlug === 'restaurantes' ? renderRestaurant() : draft.categorySlug === 'transportes' ? renderTransport() : renderTour();
     if (step === 3) return renderOffer();
     return message ? <div className="wizard-finished"><span>✓</span><h2>Solicitud enviada.</h2><p>{message}</p><button type="button" onClick={onBack}>Volver al registro de negocios →</button></div> : renderReview();
   };

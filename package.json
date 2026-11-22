@@ -14,9 +14,11 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "prestart": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio"
   },
   "dependencies": {

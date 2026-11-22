@@ -69,6 +69,7 @@ async function main(): Promise<void> {
     { name: 'Hoteles', slug: 'hoteles', iconName: 'bed', displayOrder: 1 },
     { name: 'Restaurantes', slug: 'restaurantes', iconName: 'utensils', displayOrder: 2 },
     { name: 'Tours', slug: 'tours', iconName: 'compass', displayOrder: 3 },
+    { name: 'Transportes', slug: 'transportes', iconName: 'bus', displayOrder: 4 },
   ];
   for (const category of categories) {
     await prisma.category.upsert({ where: { slug: category.slug }, update: category, create: category });

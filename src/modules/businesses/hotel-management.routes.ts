@@ -22,7 +22,7 @@ const hotelInput = z.object({
   shortDescription: z.string().trim().min(5).max(160), description: z.string().trim().min(20).max(5000),
   address: z.string().trim().min(5).max(255), whatsappNumber: z.string().trim().min(7).max(20),
   latitude: z.coerce.number().min(-90).max(90), longitude: z.coerce.number().min(-180).max(180),
-  categorySlug: z.enum(['hoteles', 'restaurantes', 'tours']).default('hoteles'),
+  categorySlug: z.enum(['hoteles', 'restaurantes', 'tours', 'transportes']).default('hoteles'),
   basePrice: z.coerce.number().positive().max(100000000).nullable().optional(),
   priceUnit: z.string().trim().max(50).optional(),
 });
@@ -99,7 +99,7 @@ hotelManagementRouter.post('/', requireRole('BUSINESS_OWNER'), async (req, res) 
   const business = await prisma.business.create({
     data: {
       ...fields, ownerId: req.user!.id, categoryId: category.id, slug: `${slugBase}-${randomUUID().slice(0, 8)}`,
-      basePrice: basePrice ?? null, priceUnit: priceUnit || (categorySlug === 'hoteles' ? 'noche' : categorySlug === 'tours' ? 'persona' : 'plato'), status: 'PENDING',
+      basePrice: basePrice ?? null, priceUnit: priceUnit || (categorySlug === 'hoteles' ? 'noche' : categorySlug === 'tours' ? 'persona' : categorySlug === 'transportes' ? 'trayecto' : 'plato'), status: 'PENDING',
       ...(categorySlug === 'hoteles' ? { accommodation: { create: { amenities: [] } } } : {}),
     },
     include: { category: true, roomTypes: true, restaurantDetail: true, tourDetail: true, services: true, menuItems: true },

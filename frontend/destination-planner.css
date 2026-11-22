@@ -143,6 +143,11 @@
 .transport-contact{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:12px}
 .transport-contact a,.transport-official-link,.transport-callout{color:#31573f;font-size:10px;font-weight:700;text-decoration:none}
 .transport-contact a:first-child{color:#68766b;font-weight:600}
+.transport-routes{display:grid;gap:8px;margin:20px 0 12px}
+.transport-route-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 18px;padding:12px 14px;border:1px solid #dce2d9;background:#fffefa;color:#31573f;font-size:11px}
+.transport-route-row span{font-weight:700;white-space:nowrap}
+.transport-route-row small{grid-column:1/-1;color:#718076;font-size:10px;line-height:1.6}
+.transport-empty{grid-column:1/-1}
 .transport-official-link{display:inline-flex;margin-top:19px;padding-bottom:4px;border-bottom:1px solid #bfccbf}
 .transport-route-mark{display:grid;width:110px;height:110px;flex:none;place-content:center;border:1px solid #cad6c9;border-radius:50%;color:#31573f;font:500 24px 'Playfair Display',serif;text-align:center}
 .transport-route-mark b{font:500 18px 'DM Sans',sans-serif}
