@@ -3,10 +3,10 @@ import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import { prisma } from '../config/database';
-import { env } from '../config/env';
-import { ConflictError, UnauthorizedError } from '../shared/errors/AppError';
-import { requireAuth } from '../shared/middlewares/auth.middleware';
+import { prisma } from '../../config/database';
+import { env } from '../../config/env';
+import { ConflictError, UnauthorizedError } from '../../shared/errors/AppError';
+import { requireAuth } from '../../shared/middlewares/auth.middleware';
 
 export const authRouter = Router();
 const googleClient = new OAuth2Client();

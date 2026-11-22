@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { prisma } from '../config/database';
-import { BadRequestError, UnauthorizedError } from '../shared/errors/AppError';
-import { optionalAuth, requireAuth } from '../shared/middlewares/auth.middleware';
+import { prisma } from '../../config/database';
+import { BadRequestError, UnauthorizedError } from '../../shared/errors/AppError';
+import { optionalAuth, requireAuth } from '../../shared/middlewares/auth.middleware';
 
 export const galleryRouter = Router();
 const maxBytes = 5 * 1024 * 1024;

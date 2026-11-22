@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { prisma } from '../config/database';
-import { requireAuth, requireRole } from '../shared/middlewares/auth.middleware';
-import { BadRequestError, NotFoundError } from '../shared/errors/AppError';
+import { prisma } from '../../config/database';
+import { requireAuth, requireRole } from '../../shared/middlewares/auth.middleware';
+import { BadRequestError, NotFoundError } from '../../shared/errors/AppError';
 
 export const hotelManagementRouter = Router();
 hotelManagementRouter.use(requireAuth, requireRole('BUSINESS_OWNER', 'SUPERADMIN', 'ALCALDIA_ADMIN'));

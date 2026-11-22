@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { prisma } from '../config/database';
-import { requireAuth } from '../shared/middlewares/auth.middleware';
-import { UnauthorizedError } from '../shared/errors/AppError';
+import { prisma } from '../../config/database';
+import { requireAuth } from '../../shared/middlewares/auth.middleware';
+import { UnauthorizedError } from '../../shared/errors/AppError';
 
 export const favoritesRouter = Router();
 const favoriteBody = z.object({ businessId: z.string().uuid() });

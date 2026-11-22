@@ -1,8 +1,8 @@
 import { Router, type RequestHandler } from 'express';
 import { z } from 'zod';
-import { prisma } from '../config/database';
-import { BadRequestError, ConflictError, ForbiddenError } from '../shared/errors/AppError';
-import { requireAuth } from '../shared/middlewares/auth.middleware';
+import { prisma } from '../../config/database';
+import { BadRequestError, ConflictError, ForbiddenError } from '../../shared/errors/AppError';
+import { requireAuth } from '../../shared/middlewares/auth.middleware';
 
 export const adminRouter = Router();
 
