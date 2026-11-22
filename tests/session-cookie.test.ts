@@ -16,7 +16,7 @@ describe('cookie de sesión', () => {
     const [name, token, options] = (response.cookie as jest.Mock).mock.calls[0];
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as jwt.JwtPayload;
     expect(name).toBe(SESSION_COOKIE_NAME);
-    expect(options).toMatchObject({ httpOnly: true, secure: false, sameSite: 'lax', path: '/', maxAge: SESSION_IDLE_TIMEOUT_MS });
+    expect(options).toMatchObject({ httpOnly: true, secure: false, sameSite: 'none', path: '/', maxAge: SESSION_IDLE_TIMEOUT_MS });
     expect(payload.exp! - payload.iat!).toBe(30 * 60);
   });
 
