@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { apiFetch } from './api';
 
 type SearchResult = { lat: string; lon: string; display_name: string };
 type LatLng = { lat: number; lng: number };
@@ -109,7 +110,7 @@ export default function OpenMapPicker({ api, latitude, longitude, address, onSel
     if (searchText.trim().length < 3) { setSearchError('Escribe al menos tres caracteres para buscar.'); return; }
     setSearching(true);
     try {
-      const response = await fetch(`${api}/openmap/search?q=${encodeURIComponent(searchText.trim())}`);
+      const response = await apiFetch(`${api}/openmap/search?q=${encodeURIComponent(searchText.trim())}`);
       const result = await response.json() as { data?: SearchResult[]; error?: { message?: string } };
       if (!response.ok) throw new Error(result.error?.message || 'No se encontraron lugares.');
       if (!result.data?.length) { setSearchError('No encontramos ese punto en Puerto Escondido. Prueba con el nombre de una playa, barrio o referencia.'); return; }

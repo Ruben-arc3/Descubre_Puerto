@@ -9,6 +9,7 @@ const envSchema = z.object({
     .regex(/^postgres(ql)?:\/\//, 'DATABASE_URL debe empezar por postgresql://'),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET debe tener al menos 32 caracteres'),
   JWT_EXPIRES_IN: z.string().default('7d'),
+  SESSION_IDLE_TIMEOUT_MINUTES: z.coerce.number().int().min(5).max(1440).default(30),
   BCRYPT_ROUNDS: z.coerce.number().int().min(4).max(15).default(10),
   CORS_ORIGIN: z.string().default('*'),
   GOOGLE_CLIENT_ID: z.string().optional(),

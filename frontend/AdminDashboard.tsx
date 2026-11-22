@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { apiFetch } from './api';
 import './admin-dashboard.css';
 
 // Mantiene el panel en la misma API que el resto del frontend, incluso en deploy.
@@ -15,7 +16,7 @@ const display = (value: unknown) => {
   return text.length > 180 ? `${text.slice(0, 180)}…` : text;
 };
 
-export default function AdminDashboard({ token, userName, onRequestLogin }: { token: string; userName?: string; onRequestLogin: () => void }) {
+export default function AdminDashboard({ sessionActive, userName, onRequestLogin }: { sessionActive: boolean; userName?: string; onRequestLogin: () => void }) {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [tables, setTables] = useState<TableInfo[]>([]);
   const [selected, setSelected] = useState('');
@@ -34,11 +35,11 @@ export default function AdminDashboard({ token, userName, onRequestLogin }: { to
   const limit = 50;
 
   const request = useCallback(async (path: string, init: RequestInit = {}) => {
-    const response = await fetch(`${API}${path}`, { ...init, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...init.headers } });
+    const response = await apiFetch(`${API}${path}`, { ...init, headers: { 'Content-Type': 'application/json',  ...init.headers } });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error?.message || 'No fue posible completar la operación.');
     return result.data;
-  }, [token]);
+  }, []);
 
   const loadOverview = useCallback(async () => {
     const [stats, available] = await Promise.all([request('/admin/overview'), request('/admin/tables')]);
@@ -58,12 +59,12 @@ export default function AdminDashboard({ token, userName, onRequestLogin }: { to
   }, [request]);
 
   useEffect(() => {
-    if (!token) { setAuthorized(false); return; }
+    if (!sessionActive) { setAuthorized(false); return; }
     loadOverview().then(() => setError('')).catch((problem) => {
       const message = problem instanceof Error ? problem.message : 'No se pudo consultar la base de datos.';
       setAuthorized(false); setError(message);
     });
-  }, [token, loadOverview]);
+  }, [sessionActive, loadOverview]);
 
   useEffect(() => { if (authorized && selected) void loadTable(selected, 0); }, [authorized, selected, loadTable]);
 
@@ -101,7 +102,7 @@ export default function AdminDashboard({ token, userName, onRequestLogin }: { to
     finally { setBusy(false); }
   };
 
-  if (!token) return <main className="admin-gate"><div className="admin-gate-card"><span className="admin-kicker">PUERTO ESCONDIDO · ADMINISTRACIÓN</span><div className="admin-lock">⌑</div><h1>Panel de administración</h1><p>Inicia sesión con una cuenta autorizada para consultar las estadísticas y administrar los registros.</p><button className="admin-primary" onClick={onRequestLogin}>Iniciar sesión</button><small>El panel no tiene enlaces en la navegación pública y la API valida el rol de administrador.</small></div></main>;
+  if (!sessionActive) return <main className="admin-gate"><div className="admin-gate-card"><span className="admin-kicker">PUERTO ESCONDIDO · ADMINISTRACIÓN</span><div className="admin-lock">⌑</div><h1>Panel de administración</h1><p>Inicia sesión con una cuenta autorizada para consultar las estadísticas y administrar los registros.</p><button className="admin-primary" onClick={onRequestLogin}>Iniciar sesión</button><small>El panel no tiene enlaces en la navegación pública y la API valida el rol de administrador.</small></div></main>;
 
   if (authorized === false) return <main className="admin-gate"><div className="admin-gate-card"><span className="admin-kicker">ACCESO RESTRINGIDO</span><div className="admin-lock">⌑</div><h1>Se requiere una cuenta administradora</h1><p>{error || `La cuenta ${userName || 'actual'} no tiene permisos para este panel.`}</p><button className="admin-secondary" onClick={() => window.location.assign('/')}>Volver al sitio</button><small>Asigna el rol SUPERADMIN a una cuenta autorizada en PostgreSQL y vuelve a iniciar sesión.</small></div></main>;
 

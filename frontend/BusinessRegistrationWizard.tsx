@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { apiFetch } from './api';
 import './business-wizard.css';
 import OpenMapPicker from './OpenMapPicker';
 
@@ -38,9 +39,9 @@ const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', '
 const splitList = (value: string) => value.split(',').map((part) => part.trim()).filter(Boolean);
 const categoryNames: Record<CategorySlug, string> = { hoteles: 'Alojamiento', restaurantes: 'Restaurante', tours: 'Tour o experiencia' };
 
-type Props = { api: string; authToken: string; initialCategorySlug: string; onBack: () => void; onCreated: (business: { id: string; name: string }) => void };
+type Props = { api: string; initialCategorySlug: string; onBack: () => void; onCreated: (business: { id: string; name: string }) => void };
 
-export default function BusinessRegistrationWizard({ api, authToken, initialCategorySlug, onBack, onCreated }: Props) {
+export default function BusinessRegistrationWizard({ api, initialCategorySlug, onBack, onCreated }: Props) {
   const normalizedCategory = (['hoteles', 'restaurantes', 'tours'].includes(initialCategorySlug) ? initialCategorySlug : 'hoteles') as CategorySlug;
   const [draft, setDraft] = useState<BusinessDraft>(() => initialDraft(normalizedCategory));
   const [step, setStep] = useState(0);
@@ -113,7 +114,7 @@ export default function BusinessRegistrationWizard({ api, authToken, initialCate
   };
 
   const request = async <T,>(path: string, method: string, body: unknown): Promise<T> => {
-    const response = await fetch(`${api}${path}`, { method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` }, body: JSON.stringify(body) });
+    const response = await apiFetch(`${api}${path}`, { method, headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(body) });
     const result = await response.json();
     if (!response.ok) throw new Error(result.error?.message || `No se pudo guardar ${path}.`);
     return result.data as T;
@@ -190,8 +191,8 @@ export default function BusinessRegistrationWizard({ api, authToken, initialCate
             const reader = new FileReader(); reader.onload = () => typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('No se pudo leer la imagen.'));
             reader.onerror = () => reject(new Error('No se pudo leer la imagen.')); reader.readAsDataURL(file);
           });
-          const response = await fetch(`${api}/hotel-management/${created.id}/media`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+          const response = await apiFetch(`${api}/hotel-management/${created.id}/media`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json', },
             body: JSON.stringify({ mimeType: file.type, fileName: file.name, imageBase64: dataUrl.split(',')[1] || '', isCover: index === 0 }),
           });
           if (!response.ok) imageFailures.push(file.name);

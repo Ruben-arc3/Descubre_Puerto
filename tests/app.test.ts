@@ -1,8 +1,9 @@
 process.env.NODE_ENV = 'test';
 require('dotenv').config({ quiet: true });
 
+const prisma = { user: { findUnique: jest.fn() } };
 jest.doMock('../src/config/database', () => ({
-  prisma: {},
+  prisma,
   checkDatabaseConnection: jest.fn(),
 }));
 
@@ -11,6 +12,7 @@ const { app } = require('../src/app') as typeof import('../src/app');
 const { checkDatabaseConnection } = require('../src/config/database') as {
   checkDatabaseConnection: jest.Mock;
 };
+const { createSessionToken } = require('../src/shared/auth/session-cookie') as typeof import('../src/shared/auth/session-cookie');
 
 describe('API principal', () => {
   it('responde con estado saludable cuando PostgreSQL está disponible', async () => {
@@ -50,5 +52,30 @@ describe('API principal', () => {
 
     expect(response.status).toBe(404);
     expect(response.body.error.code).toBe('ROUTE_NOT_FOUND');
+  });
+
+  it('borra la cookie de sesión al cerrar sesión', async () => {
+    const response = await request(app).post('/api/v1/auth/logout');
+
+    expect(response.status).toBe(204);
+    expect(response.headers['set-cookie'][0]).toMatch(/^puerto_session=/);
+    expect(response.headers['set-cookie'][0]).toMatch(/HttpOnly/i);
+    expect(response.headers['set-cookie'][0]).toMatch(/SameSite=Lax/i);
+    expect(response.headers['set-cookie'][0]).toMatch(/Expires=/i);
+  });
+
+  it('acepta la cookie HttpOnly y renueva su vencimiento al consultar la sesión', async () => {
+    const user = { id: '2cb1d6b8-f2c5-4d8c-a71f-17322caf36e1', fullName: 'Ruben Mora', email: 'ruben@example.com', role: 'TOURIST', isActive: true };
+    prisma.user.findUnique.mockResolvedValue(user);
+    const oldToken = createSessionToken(user);
+
+    const response = await request(app)
+      .get('/api/v1/auth/session')
+      .set('Cookie', `puerto_session=${oldToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.user).toMatchObject({ id: user.id, email: user.email, role: user.role });
+    expect(response.headers['set-cookie'][0]).toMatch(/^puerto_session=/);
+    expect(response.headers['set-cookie'][0]).toMatch(/HttpOnly/i);
   });
 });

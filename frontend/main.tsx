@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { apiFetch } from './api';
 import './styles.css';
 import './catalog-menu.css';
 import './gallery.css';
@@ -14,6 +15,8 @@ import './android.css';
 // En producción Vite reemplaza esta URL durante el build con el endpoint público de la API.
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
 const API_ORIGIN = new URL(API).origin;
+const SESSION_IDLE_TIMEOUT_MS = 30 * 60 * 1000;
+const SESSION_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 type Service = { id: string; name: string; description?: string | null; price?: string | number | null; priceUnit?: string | null };
 type MenuItem = { id: string; name: string; description?: string | null; category?: string | null; price: string | number; imageUrl?: string | null };
 type RoomType = { id: string; businessId: string; name: string; description: string; maxAdults: number; maxChildren: number; bedDescription: string; areaSqm?: number | string | null; quantity: number; nightlyRate: number | string; breakfastIncluded: boolean; refundable: boolean; cancellationPolicy: string; prepaymentPolicy: string; amenities: string[]; isAvailable: boolean };
@@ -62,7 +65,7 @@ function NavIcon({ name, className = '' }: { name: IconName; className?: string 
 
 // El navegador lee los lugares desde la API; el contenido ya no se duplica como un arreglo local.
 async function getData<T>(path: string): Promise<T> {
-  const response = await fetch(`${API}${path}`, { cache: 'no-store' });
+  const response = await apiFetch(`${API}${path}`, { cache: 'no-store' });
   if (!response.ok) throw new Error(`La API respondió ${response.status}`);
   return (await response.json()).data as T;
 }
@@ -97,11 +100,9 @@ function App() {
   const [galleryError, setGalleryError] = useState('');
   const [gallerySort, setGallerySort] = useState<'recent' | 'popular'>('recent');
   const [galleryCategory, setGalleryCategory] = useState('Todas');
-  const [authToken, setAuthToken] = useState(() => localStorage.getItem('puerto-auth-token') || '');
-  const [currentUser, setCurrentUser] = useState<SignedInUser | null>(() => {
-    try { return JSON.parse(localStorage.getItem('puerto-auth-user') || 'null') as SignedInUser | null; }
-    catch { return null; }
-  });
+  const [sessionActive, setSessionActive] = useState(false);
+  const [sessionIdleTimeoutMs, setSessionIdleTimeoutMs] = useState(SESSION_IDLE_TIMEOUT_MS);
+  const [currentUser, setCurrentUser] = useState<SignedInUser | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
   const [authNotice, setAuthNotice] = useState<'favorite' | 'saved' | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register');
@@ -156,6 +157,83 @@ function App() {
   const [tripDays, setTripDays] = useState<1 | 2 | 3>(2);
   const [roomDraft, setRoomDraft] = useState({ businessId: '', name: '', description: '', maxAdults: 2, maxChildren: 0, bedDescription: '', areaSqm: '', quantity: 1, nightlyRate: '', breakfastIncluded: false, refundable: true, cancellationPolicy: 'Cancelación flexible', prepaymentPolicy: 'Sin pago por adelantado', amenities: '', isAvailable: true });
 
+  useEffect(() => {
+    let active = true;
+    const legacyToken = localStorage.getItem('puerto-auth-token');
+    const headers = legacyToken ? { Authorization: `Bearer ${legacyToken}` } : undefined;
+    apiFetch(`${API}/auth/session`, { headers })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('No hay una sesión activa.');
+        const result = await response.json();
+        if (!active) return;
+        setCurrentUser(result.data.user as SignedInUser);
+        setSessionIdleTimeoutMs(Number(result.data.idleTimeoutMs) || SESSION_IDLE_TIMEOUT_MS);
+        setSessionActive(true);
+      })
+      .catch(() => {
+        if (active) {
+          setCurrentUser(null);
+          setSessionActive(false);
+        }
+      })
+      .finally(() => {
+        localStorage.removeItem('puerto-auth-token');
+        localStorage.removeItem('puerto-auth-user');
+      });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!sessionActive) return;
+    let idleTimer = 0;
+    let lastActivityAt = 0;
+    let lastSessionRefresh = Date.now();
+    let refreshInFlight = false;
+    let expired = false;
+
+    const endSession = () => {
+      if (expired) return;
+      expired = true;
+      void apiFetch(`${API}/auth/logout`, { method: 'POST' }).finally(() => {
+        setSessionActive(false);
+        setCurrentUser(null);
+        setSaved([]);
+      });
+    };
+    const resetIdleTimer = () => {
+      window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(endSession, sessionIdleTimeoutMs);
+    };
+    const markActivity = () => {
+      const now = Date.now();
+      if (now - lastActivityAt < 1000) return;
+      lastActivityAt = now;
+      resetIdleTimer();
+
+      if (!refreshInFlight && now - lastSessionRefresh >= SESSION_REFRESH_INTERVAL_MS) {
+        refreshInFlight = true;
+        lastSessionRefresh = now;
+        void apiFetch(`${API}/auth/session`)
+          .then((response) => {
+            if (response.status === 401) endSession();
+            if (response.ok) return response.json();
+            return null;
+          })
+          .then((result) => { if (result?.data?.user) setCurrentUser(result.data.user as SignedInUser); })
+          .catch(() => undefined)
+          .finally(() => { refreshInFlight = false; });
+      }
+    };
+
+    resetIdleTimer();
+    const activityEvents: (keyof WindowEventMap)[] = ['pointerdown', 'pointermove', 'keydown', 'touchstart', 'scroll', 'wheel'];
+    activityEvents.forEach((eventName) => window.addEventListener(eventName, markActivity, { passive: true }));
+    return () => {
+      window.clearTimeout(idleTimer);
+      activityEvents.forEach((eventName) => window.removeEventListener(eventName, markActivity));
+    };
+  }, [sessionActive, sessionIdleTimeoutMs]);
+
   const openQuickInquiry = (roomName = '') => {
     setInquiryRoomName(roomName);
     setInquiryName(currentUser?.fullName || '');
@@ -174,7 +252,7 @@ function App() {
     setInquiryBusy(true);
     setInquiryError('');
     try {
-      const response = await fetch(`${API}/inquiries`, {
+      const response = await apiFetch(`${API}/inquiries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -210,11 +288,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (path !== '/mis-hoteles' || !authToken) return;
-    fetch(`${API}/hotel-management/mine`, { headers: { Authorization: `Bearer ${authToken}` } })
+    if (path !== '/mis-hoteles' || !sessionActive) return;
+    apiFetch(`${API}/hotel-management/mine`, { headers: { } })
       .then(async (response) => { const result = await response.json(); if (!response.ok) throw new Error(result.error?.message || 'No fue posible cargar tus hoteles.'); setManagedHotels(result.data); })
       .catch((problem) => setHotelManagementError(problem instanceof Error ? problem.message : 'No fue posible cargar tus hoteles.'));
-  }, [path, authToken]);
+  }, [path, sessionActive]);
 
   // Los accesos del menú comparten la página de directorio, pero abren el filtro elegido.
   useEffect(() => {
@@ -225,8 +303,8 @@ function App() {
   // Cada cuenta consulta sus favoritos en PostgreSQL al autenticarse.
   useEffect(() => {
     let activeRequest = true;
-    if (!authToken) { setSaved([]); return () => { activeRequest = false; }; }
-    fetch(`${API}/favorites`, { headers: { Authorization: `Bearer ${authToken}` } })
+    if (!sessionActive) { setSaved([]); return () => { activeRequest = false; }; }
+    apiFetch(`${API}/favorites`, { headers: { } })
       .then(async (response) => {
         const result = await response.json();
         if (!response.ok) throw new Error(result.error?.message || 'No se pudieron cargar tus guardados.');
@@ -234,21 +312,20 @@ function App() {
       })
       .catch((problem) => { if (activeRequest) setFavoriteError(problem instanceof Error ? problem.message : 'No se pudieron cargar tus guardados.'); });
     return () => { activeRequest = false; };
-  }, [authToken]);
+  }, [sessionActive]);
 
-  const finishAuthentication = async (token: string, user: SignedInUser) => {
-    let sessionToken = token;
+  const finishAuthentication = async (user: SignedInUser, idleTimeoutMs?: number) => {
     let sessionUser = user;
     if (afterLoginAction === 'business' && user.role === 'TOURIST') {
-      const response = await fetch(`${API}/auth/business-owner`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+      const response = await apiFetch(`${API}/auth/business-owner`, { method: 'POST', headers: { } });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error?.message || 'No se pudo habilitar tu cuenta de anfitrión.');
-      sessionToken = result.data.token as string;
       sessionUser = result.data.user as SignedInUser;
+      idleTimeoutMs = Number(result.data.idleTimeoutMs) || idleTimeoutMs;
     }
     if (afterLoginAction === 'favorite' && pendingFavoriteId) {
-      const response = await fetch(`${API}/favorites`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      const response = await apiFetch(`${API}/favorites`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', },
         body: JSON.stringify({ businessId: pendingFavoriteId }),
       });
       const result = await response.json();
@@ -256,9 +333,8 @@ function App() {
       setSaved((items) => items.includes(pendingFavoriteId) ? items : [...items, pendingFavoriteId]);
       setPendingFavoriteId(null);
     }
-    localStorage.setItem('puerto-auth-token', sessionToken);
-    localStorage.setItem('puerto-auth-user', JSON.stringify(sessionUser));
-    setAuthToken(sessionToken);
+    if (idleTimeoutMs) setSessionIdleTimeoutMs(idleTimeoutMs);
+    setSessionActive(true);
     setCurrentUser(sessionUser);
     setAuthOpen(false);
     if (afterLoginAction === 'upload') setUploadOpen(true);
@@ -270,7 +346,7 @@ function App() {
 
   const toggleFavorite = async (businessId: string) => {
     setFavoriteError('');
-    if (!authToken) {
+    if (!sessionActive) {
       setPendingFavoriteId(businessId);
       setAfterLoginAction('favorite');
       setAuthNotice('favorite');
@@ -278,9 +354,9 @@ function App() {
     }
     const removing = saved.includes(businessId);
     try {
-      const response = await fetch(removing ? `${API}/favorites/${businessId}` : `${API}/favorites`, {
+      const response = await apiFetch(removing ? `${API}/favorites/${businessId}` : `${API}/favorites`, {
         method: removing ? 'DELETE' : 'POST',
-        headers: { Authorization: `Bearer ${authToken}`, ...(removing ? {} : { 'Content-Type': 'application/json' }) },
+        headers: {  ...(removing ? {} : { 'Content-Type': 'application/json' }) },
         ...(removing ? {} : { body: JSON.stringify({ businessId }) }),
       });
       if (!response.ok) {
@@ -296,8 +372,8 @@ function App() {
   const saveRoom = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setHotelManagementError(''); setRoomSaving(true);
     try {
-      const response = await fetch(`${API}/hotel-management/${roomDraft.businessId}/rooms`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+      const response = await apiFetch(`${API}/hotel-management/${roomDraft.businessId}/rooms`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', },
         body: JSON.stringify({ ...roomDraft, areaSqm: roomDraft.areaSqm || null, nightlyRate: Number(roomDraft.nightlyRate), amenities: roomDraft.amenities.split(',').map((item) => item.trim()).filter(Boolean) }),
       });
       const result = await response.json();
@@ -311,7 +387,7 @@ function App() {
   const startBusinessRegistration = async (categorySlug = 'hoteles') => {
     setNewHotel((draft) => ({ ...draft, categorySlug }));
     setBusinessRegistrationError('');
-    if (!authToken) {
+    if (!sessionActive) {
       setBusinessFormOpen(true);
       setAfterLoginAction('business');
       setAuthAccountType('BUSINESS_OWNER');
@@ -323,13 +399,12 @@ function App() {
     if (currentUser?.role === 'TOURIST') {
       setBusinessRegistrationLoading(true);
       try {
-        const response = await fetch(`${API}/auth/business-owner`, { method: 'POST', headers: { Authorization: `Bearer ${authToken}` } });
+        const response = await apiFetch(`${API}/auth/business-owner`, { method: 'POST', headers: { } });
         const result = await response.json();
         if (!response.ok) throw new Error(result.error?.message || 'No se pudo habilitar tu cuenta de anfitrión.');
-        const { token, user } = result.data as { token: string; user: SignedInUser };
-        localStorage.setItem('puerto-auth-token', token);
-        localStorage.setItem('puerto-auth-user', JSON.stringify(user));
-        setAuthToken(token);
+        const { user } = result.data as { user: SignedInUser };
+        setSessionIdleTimeoutMs(Number(result.data.idleTimeoutMs) || SESSION_IDLE_TIMEOUT_MS);
+        setSessionActive(true);
         setCurrentUser(user);
       } catch (problem) {
         setBusinessRegistrationError(problem instanceof Error ? problem.message : 'No se pudo habilitar tu cuenta de anfitrión.');
@@ -354,7 +429,7 @@ function App() {
       body = { durationMinutes: Number(values.durationMinutes), schedules: list('schedules'), meetingPoint: values.meetingPoint, minGroupSize: Number(values.minGroupSize || 1), maxGroupSize: values.maxGroupSize ? Number(values.maxGroupSize) : null, minAge: values.minAge ? Number(values.minAge) : null, maxAge: values.maxAge ? Number(values.maxAge) : null, included: list('included'), requirements: list('requirements'), physicalLevel: values.physicalLevel || 'Suave', languages: list('languages'), cancellationPolicy: values.cancellationPolicy, weatherPolicy: values.weatherPolicy || null, accessibilityInfo: values.accessibilityInfo || null };
     }
     try {
-      const response = await fetch(`${API}/hotel-management/${business.id}/details`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` }, body: JSON.stringify(body) });
+      const response = await apiFetch(`${API}/hotel-management/${business.id}/details`, { method: 'PUT', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(body) });
       const result = await response.json(); if (!response.ok) throw new Error(result.error?.message || 'No se pudo guardar la ficha.');
       setManagedHotels((hotels) => hotels.map((hotel) => hotel.id === business.id ? { ...hotel, ...(business.category.slug === 'restaurantes' ? { restaurantDetail: result.data } : { tourDetail: result.data }) } : hotel));
     } catch (problem) { setHotelManagementError(problem instanceof Error ? problem.message : 'No se pudo guardar la ficha.'); }
@@ -364,21 +439,21 @@ function App() {
   const createCatalogItem = async (event: React.FormEvent<HTMLFormElement>, business: Business, kind: 'services' | 'menu-items') => {
     event.preventDefault(); const form = event.currentTarget; const values = Object.fromEntries(new FormData(form).entries());
     const body = { ...Object.fromEntries(Object.entries(values).filter(([,value]) => value !== '')), price: values.price ? Number(values.price) : null };
-    const response = await fetch(`${API}/hotel-management/${business.id}/${kind}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` }, body: JSON.stringify(body) });
+    const response = await apiFetch(`${API}/hotel-management/${business.id}/${kind}`, { method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(body) });
     const result = await response.json(); if (!response.ok) { setHotelManagementError(result.error?.message || 'No se pudo guardar.'); return; }
     setManagedHotels((hotels) => hotels.map((hotel) => hotel.id === business.id ? kind === 'services' ? { ...hotel, services: [...hotel.services, result.data] } : { ...hotel, menuItems: [...hotel.menuItems, result.data] } : hotel));
     form.reset();
   };
 
   const removeCatalogItem = async (business: Business, kind: 'services' | 'menu-items', itemId: string) => {
-    const response = await fetch(`${API}/hotel-management/${business.id}/${kind}/${itemId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${authToken}` } });
+    const response = await apiFetch(`${API}/hotel-management/${business.id}/${kind}/${itemId}`, { method: 'DELETE', headers: { } });
     if (!response.ok) { const result = await response.json(); setHotelManagementError(result.error?.message || 'No se pudo eliminar.'); return; }
     setManagedHotels((hotels) => hotels.map((hotel) => hotel.id === business.id ? kind === 'services' ? { ...hotel, services: hotel.services.filter((item) => item.id !== itemId) } : { ...hotel, menuItems: hotel.menuItems.filter((item) => item.id !== itemId) } : hotel));
   };
 
   const deleteRoom = async (businessId: string, roomId: string) => {
     if (!window.confirm('¿Eliminar este tipo de habitación?')) return;
-    const response = await fetch(`${API}/hotel-management/${businessId}/rooms/${roomId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${authToken}` } });
+    const response = await apiFetch(`${API}/hotel-management/${businessId}/rooms/${roomId}`, { method: 'DELETE', headers: { } });
     if (response.ok) setManagedHotels((hotels) => hotels.map((hotel) => hotel.id === businessId ? { ...hotel, roomTypes: hotel.roomTypes.filter((room) => room.id !== roomId) } : hotel));
     else { const result = await response.json(); setHotelManagementError(result.error?.message || 'No se pudo eliminar el tipo de habitación.'); }
   };
@@ -419,15 +494,15 @@ function App() {
     let activeRequest = true;
     setGalleryLoading(true);
     setGalleryError('');
-    const headers = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
-    fetch(`${API}/gallery${gallerySort === 'popular' ? '?sort=popular' : ''}`, { headers }).then(async (response) => {
+    const headers = sessionActive ? { } : undefined;
+    apiFetch(`${API}/gallery${gallerySort === 'popular' ? '?sort=popular' : ''}`, { headers }).then(async (response) => {
       if (!response.ok) throw new Error(`La API respondió ${response.status}`);
       return (await response.json()).data as GalleryPhoto[];
     }).then((photos) => { if (activeRequest) setGallery(photos); })
       .catch(() => { if (activeRequest) setGalleryError('No se pudo cargar la galería. Intenta actualizar la página.'); })
       .finally(() => { if (activeRequest) setGalleryLoading(false); });
     return () => { activeRequest = false; };
-  }, [path, authToken, gallerySort]);
+  }, [path, sessionActive, gallerySort]);
 
   // Solicita a Google el ID token y lo envía al backend, que valida firma, audiencia y vencimiento.
   useEffect(() => {
@@ -440,11 +515,11 @@ function App() {
       window.google.accounts.id.initialize({ client_id: clientId, callback: async ({ credential }) => {
         setGoogleError('');
         try {
-          const response = await fetch(`${API}/auth/google`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential, accountType: authAccountType }) });
+          const response = await apiFetch(`${API}/auth/google`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential, accountType: authAccountType }) });
           const result = await response.json();
           if (!response.ok) throw new Error(result.error?.message || 'No se pudo iniciar sesión.');
-          const { token, user } = result.data as { token: string; user: SignedInUser };
-          await finishAuthentication(token, user);
+          const { user } = result.data as { user: SignedInUser };
+          await finishAuthentication(user, Number(result.data.idleTimeoutMs));
         } catch (loginError) {
           setGoogleError(loginError instanceof Error ? loginError.message : 'No se pudo iniciar sesión.');
         }
@@ -471,12 +546,12 @@ function App() {
 
   const requestUpload = () => {
     setUploadError('');
-    if (authToken) setUploadOpen(true);
+    if (sessionActive) setUploadOpen(true);
     else { setAfterLoginAction('upload'); setGoogleError(''); setAuthMode('register'); setAuthOpen(true); }
   };
 
   const toggleGalleryLike = async (photo: GalleryPhoto) => {
-    if (!authToken) {
+    if (!sessionActive) {
       setAfterLoginAction('none');
       setAuthMode('login');
       setGoogleError('');
@@ -484,9 +559,9 @@ function App() {
       return;
     }
     try {
-      const response = await fetch(`${API}/gallery/${photo.id}/like`, {
+      const response = await apiFetch(`${API}/gallery/${photo.id}/like`, {
         method: photo.likedByMe ? 'DELETE' : 'POST',
-        headers: { Authorization: `Bearer ${authToken}` },
+        headers: { },
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error?.message || 'No se pudo actualizar el like.');
@@ -503,14 +578,14 @@ function App() {
     setAuthLoading(true);
     setGoogleError('');
     try {
-      const response = await fetch(`${API}/auth/${authMode}`, {
+      const response = await apiFetch(`${API}/auth/${authMode}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: authEmail, password: authPassword, ...(authMode === 'register' ? { fullName: authFullName, accountType: authAccountType } : {}) }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error?.message || 'No se pudo acceder a la cuenta.');
-      const { token, user } = result.data as { token: string; user: SignedInUser };
-      await finishAuthentication(token, user);
+      const { user } = result.data as { user: SignedInUser };
+      await finishAuthentication(user, Number(result.data.idleTimeoutMs));
     } catch (authProblem) {
       setGoogleError(authProblem instanceof Error ? authProblem.message : 'No se pudo acceder a la cuenta.');
     } finally { setAuthLoading(false); }
@@ -518,7 +593,7 @@ function App() {
 
   const submitPhoto = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!photoFile || !authToken) return;
+    if (!photoFile || !sessionActive) return;
     setUploading(true);
     setUploadError('');
     try {
@@ -529,9 +604,9 @@ function App() {
         reader.readAsDataURL(photoFile);
       });
       const imageBase64 = dataUrl.split(',')[1] || '';
-      const response = await fetch(`${API}/gallery`, {
+      const response = await apiFetch(`${API}/gallery`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+        headers: { 'Content-Type': 'application/json', },
         body: JSON.stringify({ caption, category: photoCategory, location: photoLocation.trim() || 'Puerto Escondido', mimeType: photoFile.type, originalName: photoFile.name, imageBase64 }),
       });
       const result = await response.json();
@@ -548,10 +623,10 @@ function App() {
   };
 
   const signOut = () => {
-    localStorage.removeItem('puerto-auth-token');
-    localStorage.removeItem('puerto-auth-user');
-    setAuthToken('');
+    void apiFetch(`${API}/auth/logout`, { method: 'POST' });
+    setSessionActive(false);
     setCurrentUser(null);
+    setSaved([]);
   };
 
   const filtered = useMemo(() => places.filter((place) => {
@@ -615,7 +690,7 @@ function App() {
     const activeMedia = place.media[imageIndex] || cover;
     const highlights = [...(place.accommodation?.amenities || []), ...place.services.map((service) => service.name)].slice(0, 3);
     return <article className="card place-card" key={place.id}>
-      <div className="card-image" onTouchStart={(event) => {swipeStartX.current = event.touches[0]?.clientX ?? null;}} onTouchEnd={(event) => handleCardSwipe(event, place.id, place.media.length)}><button className="card-photo-button" onClick={() => openPlaceDetails(place)} aria-label={`Ver detalles de ${place.name}`}><img key={activeMedia?.id || 'fallback'} className="card-image-transition" src={activeMedia ? mediaSource(place, activeMedia) : picture()} alt={`${place.name} · foto ${imageIndex + 1}`} loading="lazy"/></button><span className="tag">{place.category.name.toUpperCase()}</span>{place.isVerified && <span className="verified-tag">✓ Verificado</span>}{place.media.length > 1 && <><button className="card-gallery-arrow previous" onClick={(event) => {event.stopPropagation();moveCardImage(place.id, place.media.length, -1);}} aria-label={`Foto anterior de ${place.name}`}>‹</button><button className="card-gallery-arrow next" onClick={(event) => {event.stopPropagation();moveCardImage(place.id, place.media.length, 1);}} aria-label={`Foto siguiente de ${place.name}`}>›</button><span className="photo-count">{imageIndex + 1} / {place.media.length}</span></>}<button className={saved.includes(place.id) ? 'heart chosen' : 'heart'} aria-label={saved.includes(place.id) ? 'Quitar de favoritos' : 'Guardar favorito'} title={authToken ? (saved.includes(place.id) ? 'Quitar de guardados' : 'Guardar en favoritos') : 'Inicia sesión para guardar'} onClick={() => void toggleFavorite(place.id)}>{saved.includes(place.id) ? '♥' : '♡'}</button></div>
+      <div className="card-image" onTouchStart={(event) => {swipeStartX.current = event.touches[0]?.clientX ?? null;}} onTouchEnd={(event) => handleCardSwipe(event, place.id, place.media.length)}><button className="card-photo-button" onClick={() => openPlaceDetails(place)} aria-label={`Ver detalles de ${place.name}`}><img key={activeMedia?.id || 'fallback'} className="card-image-transition" src={activeMedia ? mediaSource(place, activeMedia) : picture()} alt={`${place.name} · foto ${imageIndex + 1}`} loading="lazy"/></button><span className="tag">{place.category.name.toUpperCase()}</span>{place.isVerified && <span className="verified-tag">✓ Verificado</span>}{place.media.length > 1 && <><button className="card-gallery-arrow previous" onClick={(event) => {event.stopPropagation();moveCardImage(place.id, place.media.length, -1);}} aria-label={`Foto anterior de ${place.name}`}>‹</button><button className="card-gallery-arrow next" onClick={(event) => {event.stopPropagation();moveCardImage(place.id, place.media.length, 1);}} aria-label={`Foto siguiente de ${place.name}`}>›</button><span className="photo-count">{imageIndex + 1} / {place.media.length}</span></>}<button className={saved.includes(place.id) ? 'heart chosen' : 'heart'} aria-label={saved.includes(place.id) ? 'Quitar de favoritos' : 'Guardar favorito'} title={sessionActive ? (saved.includes(place.id) ? 'Quitar de guardados' : 'Guardar en favoritos') : 'Inicia sesión para guardar'} onClick={() => void toggleFavorite(place.id)}>{saved.includes(place.id) ? '♥' : '♡'}</button></div>
       <div className="card-body"><div className="card-top"><span>{place.category.name.toUpperCase()} · {place.zone.toUpperCase()}</span><span className="card-location">⌖ Puerto Escondido</span></div><button className="place-name-button" onClick={() => openPlaceDetails(place)}><h3>{place.name}</h3></button><p>{place.shortDescription}</p>
         {!!highlights.length && <div className="place-chips">{highlights.map((highlight) => <span key={highlight}>✦ {highlight}</span>)}</div>}
         <div className="card-bottom place-card-bottom"><span><small>Desde</small><br/><b>{money(place.basePrice)}</b><small> / {place.priceUnit || 'servicio'}</small></span><button className="card-details-button" onClick={() => openPlaceDetails(place)}>Ver detalles <span>→</span></button></div>
@@ -666,10 +741,10 @@ function App() {
 
   const footer = <footer><a className="brand footer-brand" href="/" onClick={(e) => {e.preventDefault();go('/');}}><span className="brand-mark">P.</span><span>PUERTO<br/><small>ESCONDIDO</small></span></a><span>Un destino con alma · Córdoba, Colombia</span><span>© 2026 Puerto Escondido</span></footer>;
 
-  if (path === '/admin') return <AdminDashboard token={authToken} userName={currentUser?.fullName} onRequestLogin={() => { setAfterLoginAction('admin'); setAuthMode('login'); setGoogleError(''); setAuthOpen(true); go('/'); }} />;
+  if (path === '/admin') return <AdminDashboard sessionActive={sessionActive} userName={currentUser?.fullName} onRequestLogin={() => { setAfterLoginAction('admin'); setAuthMode('login'); setGoogleError(''); setAuthOpen(true); go('/'); }} />;
 
   if (path === '/registrar-negocio') return <>{header}<main className="business-registration-page">
-    {businessFormOpen && currentUser?.role === 'BUSINESS_OWNER' ? <BusinessRegistrationWizard api={API} authToken={authToken!} initialCategorySlug={newHotel.categorySlug} onBack={() => setBusinessFormOpen(false)} onCreated={() => { void getData<Business[]>("/hotel-management/mine").then((items) => setManagedHotels(items)).catch(() => {}); }} /> : <>
+    {businessFormOpen && currentUser?.role === 'BUSINESS_OWNER' ? <BusinessRegistrationWizard api={API} initialCategorySlug={newHotel.categorySlug} onBack={() => setBusinessFormOpen(false)} onCreated={() => { void getData<Business[]>("/hotel-management/mine").then((items) => setManagedHotels(items)).catch(() => {}); }} /> : <>
       <section className="business-hero"><div className="business-hero-copy"><span className="eyebrow">ANFITRIONES DEL CARIBE CORDOBÉS</span><h1>Lo que haces aquí<br/><em>merece encontrarse.</em></h1><p>Conecta tu hotel, restaurante o experiencia con viajeros que buscan conocer el Puerto Escondido local.</p><button className="dark-btn" onClick={() => void startBusinessRegistration()} disabled={businessRegistrationLoading}>{businessRegistrationLoading ? 'Preparando tu cuenta…' : currentUser?.role === 'BUSINESS_OWNER' ? 'Registrar mi establecimiento' : 'Comenzar mi registro'} <span>→</span></button><small>Gratis · toma unos minutos · revisión antes de publicar</small></div><div className="business-hero-photo" style={{backgroundImage:`linear-gradient(180deg,transparent 35%,#183f34b8),url('${picture(town?.coverImageUrl)}')`}}><span>PUERTO ESCONDIDO · CÓRDOBA</span><b>Hecho por<br/><em>gente de aquí.</em></b></div></section>
       <section className="business-category-section"><div className="business-section-heading"><span className="eyebrow">ELIGE TU CAMINO</span><h2>¿Qué quieres compartir?</h2><p>Inicia con la ficha básica. Luego podrás ampliar cada detalle desde tu panel.</p></div><div className="business-category-grid">
         {[{slug:'hoteles',icon:'⌂',title:'Alojamiento',copy:'Hoteles, posadas, cabañas y habitaciones.'},{slug:'restaurantes',icon:'◒',title:'Restaurante',copy:'Cocina local, cafés y sabores de la costa.'},{slug:'tours',icon:'⌖',title:'Tour o experiencia',copy:'Recorridos, naturaleza y planes con guías locales.'}].map((item) => <button className="business-category-card" key={item.slug} onClick={() => void startBusinessRegistration(item.slug)} disabled={businessRegistrationLoading}><span className="business-category-icon">{item.icon}</span><b>{item.title}</b><p>{item.copy}</p><span className="business-card-link">Registrar este negocio ↗</span></button>)}
@@ -682,7 +757,7 @@ function App() {
   if (path === '/mis-hoteles') return <>{header}<main>
     <section className="directory-hero"><span className="eyebrow light">PANEL DEL ANFITRIÓN</span><h1>Tu negocio,<br/><em>en buenas manos.</em></h1><p>Administra hoteles, restaurantes y experiencias desde un mismo lugar.</p></section>
     <section className="section directory-section hotel-admin"><div className="section-heading"><div><span className="eyebrow">GESTIÓN DE ESTABLECIMIENTOS</span><h2>Tu oferta <em>local.</em></h2></div></div>
-    {!authToken ? <div className="empty-state"><p>Inicia sesión como anfitrión para registrar y administrar tus negocios.</p><button className="dark-btn" onClick={() => {setAuthMode('login');setAuthOpen(true);}}>Iniciar sesión →</button></div> : hotelManagementError && !managedHotels.length ? <p className="api-error">{hotelManagementError}</p> : <>
+    {!sessionActive ? <div className="empty-state"><p>Inicia sesión como anfitrión para registrar y administrar tus negocios.</p><button className="dark-btn" onClick={() => {setAuthMode('login');setAuthOpen(true);}}>Iniciar sesión →</button></div> : hotelManagementError && !managedHotels.length ? <p className="api-error">{hotelManagementError}</p> : <>
       {currentUser?.role === 'BUSINESS_OWNER' && <div className="room-editor hotel-registration"><h4>Registra un establecimiento</h4><p>Completa los detalles en un asistente por pasos, según sea alojamiento, restaurante o tour.</p><button className="dark-btn" type="button" onClick={() => { setNewHotel({ ...newHotel, categorySlug: 'hoteles' }); setBusinessFormOpen(true); go('/registrar-negocio'); }}>Comenzar registro →</button></div>}
       {hotelManagementError && <p className="api-error">{hotelManagementError}</p>}
       {managedHotels.length === 0 && currentUser?.role !== 'BUSINESS_OWNER' && <p className="empty">No hay establecimientos asociados a esta cuenta.</p>}
@@ -709,7 +784,7 @@ function App() {
 
   if (path === '/favoritos') {
     const favorites = places.filter((place) => saved.includes(place.id));
-    return <>{header}<main><section className="directory-hero favorites-hero"><span className="eyebrow light">TU VIAJE, A TU MANERA</span><h1>Una lista de<br/><em>lugares por vivir.</em></h1><p>Guarda tus favoritos y vuelve a ellos cuando estés planeando tu visita.</p></section><section className="section directory-section"><div className="section-heading"><div><span className="eyebrow">MIS GUARDADOS</span><h2>{favorites.length ? `${favorites.length} lugares guardados` : 'Tu lista empieza aquí.'}</h2></div>{link('/lugares','Explorar directorio ↗','under-link')}</div>{favoriteError && <p className="api-error">{favoriteError}</p>}<div className="cards directory-cards">{favorites.length ? favorites.map((place) => card(place)) : <div className="empty-state"><span>♡</span><p>{authToken ? 'Toca el corazón de cualquier lugar para guardarlo aquí.' : 'Inicia sesión para ver tus lugares guardados.'}</p>{!authToken && <button className="dark-btn" onClick={() => {setAfterLoginAction('none');setAuthMode('login');setAuthOpen(true);}}>Iniciar sesión →</button>}{link('/lugares','Explorar lugares →','dark-btn')}</div>}</div></section></main>{footer}</>;
+    return <>{header}<main><section className="directory-hero favorites-hero"><span className="eyebrow light">TU VIAJE, A TU MANERA</span><h1>Una lista de<br/><em>lugares por vivir.</em></h1><p>Guarda tus favoritos y vuelve a ellos cuando estés planeando tu visita.</p></section><section className="section directory-section"><div className="section-heading"><div><span className="eyebrow">MIS GUARDADOS</span><h2>{favorites.length ? `${favorites.length} lugares guardados` : 'Tu lista empieza aquí.'}</h2></div>{link('/lugares','Explorar directorio ↗','under-link')}</div>{favoriteError && <p className="api-error">{favoriteError}</p>}<div className="cards directory-cards">{favorites.length ? favorites.map((place) => card(place)) : <div className="empty-state"><span>♡</span><p>{sessionActive ? 'Toca el corazón de cualquier lugar para guardarlo aquí.' : 'Inicia sesión para ver tus lugares guardados.'}</p>{!sessionActive && <button className="dark-btn" onClick={() => {setAfterLoginAction('none');setAuthMode('login');setAuthOpen(true);}}>Iniciar sesión →</button>}{link('/lugares','Explorar lugares →','dark-btn')}</div>}</div></section></main>{footer}</>;
   }
 
   if (path === '/mapa') return <>{header}<main><section className="map-intro"><span className="eyebrow">UBÍCATE EN EL CARIBE CORDOBÉS</span><h1>El camino te<br/><em>trae hasta aquí.</em></h1><p>Explora Puerto Escondido y sus alrededores en el mapa.</p></section><section className="map-section section"><div className="map-frame"><iframe title="Mapa de Puerto Escondido, Córdoba" src="https://www.openstreetmap.org/export/embed.html?bbox=-76.36%2C8.96%2C-76.16%2C9.10&layer=mapnik&marker=9.0192%2C-76.2614" loading="lazy"/></div><div className="map-note"><div><span className="eyebrow">PUERTO ESCONDIDO</span><h2>Córdoba, Colombia</h2><p>Las ubicaciones específicas de los establecimientos se completarán con datos confirmados por cada anfitrión.</p></div><a href="https://www.openstreetmap.org/?mlat=9.0192&mlon=-76.2614#map=12/9.0192/-76.2614" target="_blank" rel="noreferrer" className="dark-btn">Abrir mapa completo ↗</a></div></section><section className="map-discover"><span className="eyebrow">SIGUE EXPLORANDO</span><h2>Encuentra tu próximo plan.</h2>{link('/lugares','Ver lugares y experiencias →','cream-btn')}</section></main>{footer}</>;
@@ -717,7 +792,7 @@ function App() {
   const galleryCategories = ['Todas', 'Playas y mar', 'Naturaleza y manglares', 'Gastronomía', 'Cultura y pueblo'];
   const displayedGallery = galleryCategory === 'Todas' ? gallery : gallery.filter((photo) => photo.category === galleryCategory);
 
-  if (path === '/galeria') return <>{header}<main className="gallery-page"><section className="gallery-hero"><div><span className="eyebrow light">PLAYAS · CULTURA · GASTRONOMÍA</span><h1>Postales de <em>el Puerto.</em></h1><p>Un recorrido visual por playas vírgenes, manglares silenciosos, sabores ancestrales y colores del Caribe cordobés capturados por locales y viajeros.</p><button className="cream-btn" onClick={requestUpload}>＋ &nbsp; Compartir mi postal <span>→</span></button></div><div className="gallery-hero-art"><span>PUERTO</span><b>VIVE<br/>AQUÍ</b><i>09° 01’ N · 76° 15’ O</i></div><div className="gallery-hero-count"><b>{gallery.length}</b><span>fotografías<br/>de la comunidad</span></div></section><section className="section community-gallery"><div className="gallery-toolbar"><div className="gallery-categories" aria-label="Filtrar fotos">{galleryCategories.map((item) => {const count = item === 'Todas' ? gallery.length : gallery.filter((photo) => photo.category === item).length; return <button key={item} className={galleryCategory === item ? 'gallery-filter active' : 'gallery-filter'} onClick={() => setGalleryCategory(item)} aria-pressed={galleryCategory === item}>{item}<span>{count}</span></button>;})}</div><div className="gallery-tools"><div className="gallery-sort" aria-label="Ordenar fotografías"><button className={gallerySort === 'recent' ? 'active' : ''} onClick={() => setGallerySort('recent')}>Recientes</button><button className={gallerySort === 'popular' ? 'active' : ''} onClick={() => setGallerySort('popular')}>♥ Populares</button></div><button className="gallery-share" onClick={requestUpload}>＋ Compartir mi postal</button></div></div>{galleryError && <p className="api-error">{galleryError}</p>}{galleryLoading ? <p className="empty">Cargando las fotos de la comunidad…</p> : displayedGallery.length ? <div className="community-grid">{displayedGallery.map((photo) => <article className="community-photo" key={photo.id}><div className="community-photo-frame"><button className="community-photo-image" onClick={() => setSelectedPhoto(photo)} aria-label={`Ver detalles: ${photo.caption || photo.category}`}><img src={apiImage(photo.imageUrl)} alt={photo.caption || `Foto compartida por ${photo.user.fullName}`} loading="lazy"/><span className="photo-open-hint">Ver postal ↗</span></button><span className="photo-category-tag">{photo.category}</span><button className={photo.likedByMe ? 'photo-like liked' : 'photo-like'} onClick={() => void toggleGalleryLike(photo)} aria-label={`${photo.likedByMe ? 'Quitar like' : 'Dar like'} · ${photo.likesCount} likes`} title={authToken ? 'Me gusta' : 'Inicia sesión para dar me gusta'}>♡ <b>{photo.likesCount}</b></button><span className="photo-location-tag">⌖ {photo.location}</span></div><div className="community-photo-info"><p>{photo.caption || 'Un momento en Puerto Escondido'}</p><div className="photo-byline"><span>Por {photo.user.fullName}</span><small>{new Date(photo.createdAt).toLocaleDateString('es-CO')}</small></div><div className="photo-card-actions"><button onClick={() => setSelectedPhoto(photo)}>Ver postal <span>↗</span></button><a href={`${apiImage(photo.imageUrl)}?download=1`} download>Descargar <span>↓</span></a></div>{photo.sourceCredit && <a className="photo-credit" href={photo.sourceUrl || '#'} target="_blank" rel="noreferrer">Imagen: {photo.sourceCredit} ↗</a>}</div></article>)}</div> : !galleryError && <div className="gallery-empty"><span>✳</span><h3>{gallery.length ? 'Todavía no hay postales en esta categoría.' : 'El primer recuerdo puede ser tuyo.'}</h3><p>Sube una foto del municipio y empieza la galería de la comunidad.</p><button className="dark-btn" onClick={requestUpload}>Compartir la primera foto <span>→</span></button></div>}<p className="gallery-guidance">Comparte solo imágenes propias o que tengas permiso para publicar. Aceptamos JPG, PNG y WebP de hasta 5 MB.</p></section></main>{footer}
+  if (path === '/galeria') return <>{header}<main className="gallery-page"><section className="gallery-hero"><div><span className="eyebrow light">PLAYAS · CULTURA · GASTRONOMÍA</span><h1>Postales de <em>el Puerto.</em></h1><p>Un recorrido visual por playas vírgenes, manglares silenciosos, sabores ancestrales y colores del Caribe cordobés capturados por locales y viajeros.</p><button className="cream-btn" onClick={requestUpload}>＋ &nbsp; Compartir mi postal <span>→</span></button></div><div className="gallery-hero-art"><span>PUERTO</span><b>VIVE<br/>AQUÍ</b><i>09° 01’ N · 76° 15’ O</i></div><div className="gallery-hero-count"><b>{gallery.length}</b><span>fotografías<br/>de la comunidad</span></div></section><section className="section community-gallery"><div className="gallery-toolbar"><div className="gallery-categories" aria-label="Filtrar fotos">{galleryCategories.map((item) => {const count = item === 'Todas' ? gallery.length : gallery.filter((photo) => photo.category === item).length; return <button key={item} className={galleryCategory === item ? 'gallery-filter active' : 'gallery-filter'} onClick={() => setGalleryCategory(item)} aria-pressed={galleryCategory === item}>{item}<span>{count}</span></button>;})}</div><div className="gallery-tools"><div className="gallery-sort" aria-label="Ordenar fotografías"><button className={gallerySort === 'recent' ? 'active' : ''} onClick={() => setGallerySort('recent')}>Recientes</button><button className={gallerySort === 'popular' ? 'active' : ''} onClick={() => setGallerySort('popular')}>♥ Populares</button></div><button className="gallery-share" onClick={requestUpload}>＋ Compartir mi postal</button></div></div>{galleryError && <p className="api-error">{galleryError}</p>}{galleryLoading ? <p className="empty">Cargando las fotos de la comunidad…</p> : displayedGallery.length ? <div className="community-grid">{displayedGallery.map((photo) => <article className="community-photo" key={photo.id}><div className="community-photo-frame"><button className="community-photo-image" onClick={() => setSelectedPhoto(photo)} aria-label={`Ver detalles: ${photo.caption || photo.category}`}><img src={apiImage(photo.imageUrl)} alt={photo.caption || `Foto compartida por ${photo.user.fullName}`} loading="lazy"/><span className="photo-open-hint">Ver postal ↗</span></button><span className="photo-category-tag">{photo.category}</span><button className={photo.likedByMe ? 'photo-like liked' : 'photo-like'} onClick={() => void toggleGalleryLike(photo)} aria-label={`${photo.likedByMe ? 'Quitar like' : 'Dar like'} · ${photo.likesCount} likes`} title={sessionActive ? 'Me gusta' : 'Inicia sesión para dar me gusta'}>♡ <b>{photo.likesCount}</b></button><span className="photo-location-tag">⌖ {photo.location}</span></div><div className="community-photo-info"><p>{photo.caption || 'Un momento en Puerto Escondido'}</p><div className="photo-byline"><span>Por {photo.user.fullName}</span><small>{new Date(photo.createdAt).toLocaleDateString('es-CO')}</small></div><div className="photo-card-actions"><button onClick={() => setSelectedPhoto(photo)}>Ver postal <span>↗</span></button><a href={`${apiImage(photo.imageUrl)}?download=1`} download>Descargar <span>↓</span></a></div>{photo.sourceCredit && <a className="photo-credit" href={photo.sourceUrl || '#'} target="_blank" rel="noreferrer">Imagen: {photo.sourceCredit} ↗</a>}</div></article>)}</div> : !galleryError && <div className="gallery-empty"><span>✳</span><h3>{gallery.length ? 'Todavía no hay postales en esta categoría.' : 'El primer recuerdo puede ser tuyo.'}</h3><p>Sube una foto del municipio y empieza la galería de la comunidad.</p><button className="dark-btn" onClick={requestUpload}>Compartir la primera foto <span>→</span></button></div>}<p className="gallery-guidance">Comparte solo imágenes propias o que tengas permiso para publicar. Aceptamos JPG, PNG y WebP de hasta 5 MB.</p></section></main>{footer}
     {uploadOpen && <div className="modal-backdrop" onMouseDown={(event) => {if(event.target === event.currentTarget)setUploadOpen(false);}}><form className="community-modal upload-modal" onSubmit={submitPhoto}><button type="button" className="modal-close" onClick={() => setUploadOpen(false)} aria-label="Cerrar">×</button><span className="eyebrow">COMPARTE TU MIRADA</span><h2>Una postal del Puerto.</h2><p className="signed-in">Sesión iniciada como <b>{currentUser?.fullName}</b></p><label className="upload-drop">{photoPreview ? <img src={photoPreview} alt="Vista previa de la foto"/> : <><span>＋</span><b>Elige una foto</b><small>JPG, PNG o WebP · máximo 5 MB</small></>}<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => {const file=event.target.files?.[0] || null;setUploadError('');if(file && !['image/jpeg','image/png','image/webp'].includes(file.type)){setUploadError('Elige una imagen JPG, PNG o WebP.');setPhotoFile(null);}else if(file && file.size > 5*1024*1024){setUploadError('La foto debe pesar 5 MB o menos.');setPhotoFile(null);}else setPhotoFile(file);}}/></label><label className="caption-label">Cuéntanos algo de este momento <textarea value={caption} onChange={(event) => setCaption(event.target.value)} maxLength={250} placeholder="¿Dónde fue? ¿Qué lo hace especial?"/></label><div className="gallery-upload-meta"><label>Categoría<select value={photoCategory} onChange={(event) => setPhotoCategory(event.target.value)}>{galleryCategories.slice(1).map((category) => <option key={category}>{category}</option>)}</select></label><label>Lugar<input value={photoLocation} onChange={(event) => setPhotoLocation(event.target.value)} maxLength={150} placeholder="Playa, barrio o paraje"/></label></div>{uploadError && <p className="modal-error">{uploadError}</p>}<button className="dark-btn publish-button" type="submit" disabled={!photoFile || uploading}>{uploading ? 'Publicando…' : 'Publicar foto'} <span>→</span></button><small>La imagen se guardará en la base de datos de la plataforma.</small></form></div>}
     {selectedPhoto && <div className="modal-backdrop photo-lightbox" onMouseDown={(event) => {if(event.target === event.currentTarget)setSelectedPhoto(null);}}><section className="lightbox-card" role="dialog" aria-modal="true" aria-label="Detalles de la fotografía"><button className="modal-close" onClick={() => setSelectedPhoto(null)} aria-label="Cerrar">×</button><img src={apiImage(selectedPhoto.imageUrl)} alt={selectedPhoto.caption || 'Foto de Puerto Escondido'}/><div className="lightbox-info"><span className="eyebrow">{selectedPhoto.category} · {selectedPhoto.location}</span><b>{selectedPhoto.caption || 'Un momento en Puerto Escondido'}</b><small>Compartida por {selectedPhoto.user.fullName} · {new Date(selectedPhoto.createdAt).toLocaleDateString('es-CO')}</small>{selectedPhoto.sourceCredit && <a className="photo-credit" href={selectedPhoto.sourceUrl || '#'} target="_blank" rel="noreferrer">Crédito de imagen: {selectedPhoto.sourceCredit} ↗</a>}<div className="lightbox-actions"><button className={selectedPhoto.likedByMe ? 'photo-like liked' : 'photo-like'} onClick={() => void toggleGalleryLike(selectedPhoto)}>♡ <b>{selectedPhoto.likesCount}</b> Me gusta</button><a className="dark-btn" href={`${apiImage(selectedPhoto.imageUrl)}?download=1`} download>Descargar imagen ↓</a></div></div></section></div>}
   </>;

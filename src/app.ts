@@ -22,11 +22,12 @@ export const app = express();
 app.disable('etag');
 
 const allowedOrigins = env.CORS_ORIGIN === '*'
-  ? true
+  ? env.NODE_ENV === 'development'
   : env.CORS_ORIGIN.split(',').map((origin) => origin.trim());
 
+app.set('trust proxy', 1);
 app.use(helmet());
-app.use(cors({ origin: allowedOrigins, credentials: env.CORS_ORIGIN !== '*' }));
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '8mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
