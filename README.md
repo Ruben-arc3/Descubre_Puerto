@@ -64,6 +64,7 @@ npm run build:frontend        # Genera el frontend para producción
 npm test                      # Ejecuta Jest
 npm run prisma:studio         # Abre Prisma Studio
 npm run db:seed               # Carga los datos iniciales
+npm run db:seed:business-images # Guarda fotos locales en los negocios demostrativos
 npm run db:seed:transport-examples  # Carga transportes demostrativos e imágenes
 ```
 

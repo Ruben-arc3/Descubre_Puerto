@@ -144,3 +144,11 @@
 .footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:14px 0 16px;border-top:1px solid #ffffff30;color:#b8c9bc;font-size:8px;line-height:1.6;letter-spacing:.025em}
 @media(max-width:700px){.site-footer{padding:32px 7% 0}.footer-columns{grid-template-columns:1fr 1fr;gap:25px 20px;padding-bottom:25px}.footer-about{grid-column:1/-1;max-width:500px}.footer-about>p{max-width:480px;margin:12px 0 9px;font-size:10px}.footer-column{gap:9px}.footer-column h2{font-size:8px}.site-footer .footer-column a{font-size:9px}.footer-bottom{align-items:flex-start;flex-direction:column;gap:5px;padding:12px 0 14px;font-size:8px}}
 @media(max-width:370px){.footer-columns{gap:22px 13px}.footer-column h2{max-width:150px;line-height:1.5}.site-footer .footer-column a{font-size:8px}}
+
+/* Galería municipal con las fotografías aportadas para Puerto Escondido */
+.town-modern .modern-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.town-modern .modern-photo>img{height:270px;transition:transform .45s ease}
+.town-modern .modern-photo:hover>img{transform:scale(1.035)}
+.town-modern .modern-photo figcaption{min-height:88px}
+@media(max-width:850px){.town-modern .modern-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.town-modern .modern-grid{grid-template-columns:1fr}.town-modern .modern-photo>img{height:250px}}
