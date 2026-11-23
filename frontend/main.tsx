@@ -38,12 +38,21 @@ declare global {
 }
 const categories = ['Todo', 'Hoteles', 'Restaurantes', 'Tours', 'Transportes'];
 const directoryCategories = categories.filter((category) => category !== 'Transportes');
-const picture = (url?: string | null) => url || 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=85';
+const destinationPhotos = {
+  town: '/images/puerto-escondido/letrero-puerto.webp',
+  sunset: '/images/puerto-escondido/atardecer-caribe.webp',
+  dining: '/images/puerto-escondido/palapas-locales.webp',
+  beach: '/images/puerto-escondido/playa-palmeras.webp',
+  lodging: '/images/puerto-escondido/alojamiento-piscina.webp',
+  pier: '/images/puerto-escondido/muelle-colorido.webp',
+  coast: '/images/puerto-escondido/costa-palmeras.webp',
+} as const;
+const picture = (url?: string | null) => url || destinationPhotos.coast;
 const transportFallbackPhotos = [
-  'https://images.unsplash.com/photo-1725864832531-f50f4639dd00?auto=format&fit=crop&w=1400&q=85',
-  'https://images.unsplash.com/photo-1695295445779-dcbbbe96ba23?auto=format&fit=crop&w=1400&q=85',
-  'https://images.unsplash.com/photo-1768257308812-333fe50777fe?auto=format&fit=crop&w=1400&q=85',
-  'https://images.unsplash.com/photo-1604928271641-8bb6df467378?auto=format&fit=crop&w=1400&q=85',
+  destinationPhotos.town,
+  destinationPhotos.pier,
+  destinationPhotos.coast,
+  destinationPhotos.beach,
 ];
 const apiImage = (path: string) => path.startsWith('http') ? path : `${API_ORIGIN}${path}`;
 // Un costo cero representa una prestación incluida; los valores null se consultan con el proveedor.
@@ -780,7 +789,14 @@ function App() {
     </div>
   </div>;
   const mediaSource = (place: Business, media: Business['media'][number]) => media.imageUrl
-    ? (media.imageUrl.startsWith('http') ? media.imageUrl : apiImage(media.imageUrl))
+    ? (media.imageUrl.startsWith('http')
+      ? media.imageUrl.includes('images.unsplash.com')
+        ? (place.category.slug === 'hoteles' ? destinationPhotos.lodging
+          : place.category.slug === 'restaurantes' ? destinationPhotos.dining
+            : place.category.slug === 'transportes' ? destinationPhotos.town
+              : [destinationPhotos.pier, destinationPhotos.coast, destinationPhotos.beach][Math.max(0, place.media.indexOf(media)) % 3])
+        : media.imageUrl
+      : apiImage(media.imageUrl))
     : `${API}/businesses/${place.id}/media/${media.id}/image`;
   const openPlaceDetails = (place: Business) => { setSelectedPlace(place); setActivePlaceImage(0); setPreviousPlaceImage(null); setStaySearch({ checkIn: '', checkOut: '', adults: 2, children: 0, rooms: 1 }); };
   const moveCardImage = (businessId: string, imageCount: number, step: number) => {
@@ -867,28 +883,28 @@ function App() {
       <details className="nav-dropdown" open={openDropdown === 'explore'} onMouseEnter={() => showDropdown('explore')} onMouseLeave={() => leaveDropdown('explore')}>
         <summary onClick={(event) => { event.preventDefault(); toggleDropdown('explore'); }} aria-expanded={openDropdown === 'explore'}><span>Directorio</span><NavIcon name="chevron" className="nav-chevron h-3 w-3"/></summary>
         <div className="dropdown-panel destination-explore-panel"><div className="dropdown-main"><div className="dropdown-heading"><div><span>COMERCIOS VERIFICADOS</span><b>Reserva o cotiza por WhatsApp</b></div><small className="dropdown-location">Puerto Escondido, Córdoba</small></div><div className="dropdown-options">
-          {exploreOption('/lugares','Todos los lugares','Alojamientos, sabores y más','https://images.unsplash.com/photo-1707738610342-accbdd20fbcf?auto=format&fit=crop&w=420&q=80')}
-          {exploreOption('/lugares?categoria=Hoteles','Hoteles y cabañas','Descansa cerca del Caribe','https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=420&q=80')}
-          {exploreOption('/lugares?categoria=Restaurantes','Restaurantes y sabores','Sabores de la costa','https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=420&q=80')}
-          {exploreOption('/lugares?categoria=Tours','Tours y experiencias','Explora con gente local','https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=420&q=80')}
+          {exploreOption('/lugares','Todos los lugares','Alojamientos, sabores y más',destinationPhotos.town)}
+          {exploreOption('/lugares?categoria=Hoteles','Hoteles y cabañas','Descansa cerca del Caribe',destinationPhotos.lodging)}
+          {exploreOption('/lugares?categoria=Restaurantes','Restaurantes y sabores','Sabores de la costa',destinationPhotos.dining)}
+          {exploreOption('/lugares?categoria=Tours','Tours y experiencias','Explora con gente local',destinationPhotos.pier)}
         </div></div><aside className="dropdown-feature" style={{backgroundImage: "linear-gradient(180deg,rgba(14,51,40,.18),rgba(12,46,37,.95)),url(" + picture(town?.coverImageUrl) + ")"}}><span className="dropdown-feature-tag">NEGOCIOS LOCALES</span><h3>Encuentra tu<br/><em>próximo plan.</em></h3><p>Consulta opciones publicadas por comercios del municipio.</p>{link('/lugares','Ver directorio ↗','dropdown-map-link')}</aside></div>
       </details>
       <details className="nav-dropdown things-dropdown" open={openDropdown === 'things'} onMouseEnter={() => showDropdown('things')} onMouseLeave={() => leaveDropdown('things')}>
         <summary onClick={(event) => { event.preventDefault(); toggleDropdown('things'); }} aria-expanded={openDropdown === 'things'}><span>Descubre</span><NavIcon name="chevron" className="nav-chevron h-3 w-3"/></summary>
         <div className="things-menu-panel"><span className="planner-menu-kicker">ATRACTIVOS Y AGENDA PÚBLICA</span>
-          {navSectionLink('/que-hacer','playas','Playas y mar','https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=160&q=75')}
-          {navSectionLink('/que-hacer','volcan','Volcán de Lodo y naturaleza','https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=160&q=75')}
-          {navSectionLink('/municipio','cultura','Cultura y patrimonio','https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=160&q=75')}
-          {link('/eventos',<><img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=160&q=75" alt=""/><span>Eventos y festivales</span><b>↗</b></>,'things-menu-option')}
+          {navSectionLink('/que-hacer','playas','Playas y mar',destinationPhotos.coast)}
+          {navSectionLink('/que-hacer','volcan','Volcán de Lodo y naturaleza',destinationPhotos.beach)}
+          {navSectionLink('/municipio','cultura','Cultura y patrimonio',destinationPhotos.town)}
+          {link('/eventos',<><img src={destinationPhotos.pier} alt=""/><span>Eventos y festivales</span><b>↗</b></>,'things-menu-option')}
         </div>
       </details>
       <details className="nav-dropdown planner-dropdown things-dropdown" open={openDropdown === 'planner'} onMouseEnter={() => showDropdown('planner')} onMouseLeave={() => leaveDropdown('planner')}>
         <summary onClick={(event) => { event.preventDefault(); toggleDropdown('planner'); }} aria-expanded={openDropdown === 'planner'}><span>Planea tu viaje</span><NavIcon name="chevron" className="nav-chevron h-3 w-3"/></summary>
         <div className="things-menu-panel"><span className="planner-menu-kicker">GUÍA LOGÍSTICA DEL VISITANTE</span>
-          {link('/planea-tu-viaje',<><img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=160&q=75" alt=""/><span>Armar mi itinerario</span><b>↗</b></>,'things-menu-option')}
-          {link('/transportes',<><img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=160&q=75" alt=""/><span>Cómo llegar y transporte</span><b>↗</b></>,'things-menu-option')}
-          {link('/mapa',<><img src="https://cdn12.picryl.com/photo/2016/12/31/terrestrial-globe-universe-cosmos-476049-1024.jpg" alt="Planeta Tierra visto desde el espacio" loading="lazy"/><span>Mapa interactivo</span><b>↗</b></>,'things-menu-option')}
-          {navSectionLink('/planea-tu-viaje','recomendaciones','Recomendaciones y clima','https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&w=160&q=75')}
+          {link('/planea-tu-viaje',<><img src={destinationPhotos.pier} alt=""/><span>Armar mi itinerario</span><b>↗</b></>,'things-menu-option')}
+          {link('/transportes',<><img src={destinationPhotos.town} alt=""/><span>Cómo llegar y transporte</span><b>↗</b></>,'things-menu-option')}
+          {link('/mapa',<><img src={destinationPhotos.coast} alt="Vista de la costa de Puerto Escondido" loading="lazy"/><span>Mapa interactivo</span><b>↗</b></>,'things-menu-option')}
+          {navSectionLink('/planea-tu-viaje','recomendaciones','Recomendaciones y clima',destinationPhotos.beach)}
         </div>
       </details>
       {navLink('/municipio','El municipio')}
@@ -966,12 +982,12 @@ function App() {
     <section className="things-hero" style={{ backgroundImage: `linear-gradient(90deg,rgba(10,31,27,.78),rgba(10,31,27,.2)),url('${eventImage}')` }}><div><span className="eyebrow light">PUERTO ESCONDIDO · CÓRDOBA</span><h1>¿Qué hacer<br/><em>en el Puerto?</em></h1><p>Mar, naturaleza y cultura para descubrir a tu propio ritmo.</p><a href="#planes" className="cream-btn">Encuentra tu plan <span>↓</span></a></div><span className="things-hero-caption">UNA GUÍA PARA INSPIRAR TU VISITA</span></section>
     <section className="things-intro section"><div><span className="eyebrow">PLANES PARA CADA MOMENTO</span><h2>Un destino que se vive<br/><em>sin afán.</em></h2></div><p>Explora playas, paisajes naturales, sabores y tradiciones locales. Los recorridos y accesos pueden depender del clima, la temporada y la disponibilidad de guías: confirma los detalles antes de salir.</p></section>
     <section className="things-grid section" id="planes">
-      <article className="thing-card" id="playas"><img src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1000&q=85" alt="Oleaje en una playa, imagen ilustrativa" loading="lazy"/><div><span className="eyebrow">MAR · PLAYA</span><h3>Una tarde frente al Caribe</h3><p>Conoce el muelle turístico y las playas del Hoyito; pregunta localmente por las condiciones del mar y el acceso.</p>{link('/mapa','Ubicar el municipio →','thing-link')}</div></article>
-      <article className="thing-card" id="volcan"><img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1000&q=85" alt="Paisaje natural, imagen ilustrativa" loading="lazy"/><div><span className="eyebrow">GEOLOGÍA · NATURALEZA</span><h3>Volcán de Lodo y entorno natural</h3><p>La zona de Santa Cruz tiene antecedentes de inestabilidad del terreno. No ingreses a áreas restringidas y confirma las condiciones con las autoridades locales antes de acercarte.</p><a className="thing-link" href="https://cvs.gov.co/visita-de-inspeccion-por-agrietamiento-y-o-desplazamiento-de-suelo/" target="_blank" rel="noreferrer">Consultar recomendaciones de la CVS ↗</a></div></article>
-      <article className="thing-card"><img src="https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1000&q=85" alt="Agua y manglar, imagen ilustrativa" loading="lazy"/><div><span className="eyebrow">AGUA · ECOTURISMO</span><h3>Manglares y Quebrada Yuca</h3><p>Consulta si hay recorridos guiados, observación de aves o paseos comunitarios disponibles durante tu visita.</p><a className="thing-link" href="https://conectaregioncaribe.mintic.gov.co/producto/ecorrido-turistico-por-puerto-escondido-y-cristo-rey/" target="_blank" rel="noreferrer">Conocer experiencias locales ↗</a></div></article>
-      <article className="thing-card"><img src="https://images.unsplash.com/photo-1514523523976-1e13df9f4f5c?auto=format&fit=crop&w=1000&q=85" alt="Presentación musical, imagen ilustrativa" loading="lazy"/><div><span className="eyebrow">CULTURA · BULLERENGUE</span><h3>Escucha la memoria del Caribe</h3><p>Conoce el bullerengue y revisa la agenda local para saber si hay presentaciones o actividades culturales.</p>{link('/eventos','Consultar eventos →','thing-link')}</div></article>
-      <article className="thing-card"><img src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1000&q=85" alt="Plato de comida, imagen ilustrativa" loading="lazy"/><div><span className="eyebrow">SABORES · COCINA LOCAL</span><h3>Prueba los sabores de la costa</h3><p>Explora restaurantes y consulta directamente qué platos, horarios y opciones están disponibles.</p>{link('/lugares?categoria=Restaurantes','Ver restaurantes →','thing-link')}</div></article>
-      <article className="thing-card"><img src="https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=1000&q=85" alt="Recorrido al aire libre, imagen ilustrativa" loading="lazy"/><div><span className="eyebrow">EXPERIENCIAS LOCALES</span><h3>Descubre con anfitriones del Puerto</h3><p>Busca tours y experiencias del directorio para consultar disponibilidad, duración y punto de encuentro.</p>{link('/lugares?categoria=Tours','Explorar tours →','thing-link')}</div></article>
+      <article className="thing-card" id="playas"><img src={destinationPhotos.coast} alt="Playa y muelle de Puerto Escondido" loading="lazy"/><div><span className="eyebrow">MAR · PLAYA</span><h3>Una tarde frente al Caribe</h3><p>Conoce el muelle turístico y las playas del Hoyito; pregunta localmente por las condiciones del mar y el acceso.</p>{link('/mapa','Ubicar el municipio →','thing-link')}</div></article>
+      <article className="thing-card" id="volcan"><img src={destinationPhotos.beach} alt="Entorno natural costero de Puerto Escondido" loading="lazy"/><div><span className="eyebrow">GEOLOGÍA · NATURALEZA</span><h3>Volcán de Lodo y entorno natural</h3><p>La zona de Santa Cruz tiene antecedentes de inestabilidad del terreno. No ingreses a áreas restringidas y confirma las condiciones con las autoridades locales antes de acercarte.</p><a className="thing-link" href="https://cvs.gov.co/visita-de-inspeccion-por-agrietamiento-y-o-desplazamiento-de-suelo/" target="_blank" rel="noreferrer">Consultar recomendaciones de la CVS ↗</a></div></article>
+      <article className="thing-card"><img src={destinationPhotos.beach} alt="Palmeras y costa de Puerto Escondido" loading="lazy"/><div><span className="eyebrow">AGUA · ECOTURISMO</span><h3>Manglares y Quebrada Yuca</h3><p>Consulta si hay recorridos guiados, observación de aves o paseos comunitarios disponibles durante tu visita.</p><a className="thing-link" href="https://conectaregioncaribe.mintic.gov.co/producto/ecorrido-turistico-por-puerto-escondido-y-cristo-rey/" target="_blank" rel="noreferrer">Conocer experiencias locales ↗</a></div></article>
+      <article className="thing-card"><img src={destinationPhotos.town} alt="Letrero de Puerto Escondido" loading="lazy"/><div><span className="eyebrow">CULTURA · BULLERENGUE</span><h3>Escucha la memoria del Caribe</h3><p>Conoce el bullerengue y revisa la agenda local para saber si hay presentaciones o actividades culturales.</p>{link('/eventos','Consultar eventos →','thing-link')}</div></article>
+      <article className="thing-card"><img src={destinationPhotos.dining} alt="Espacio de comidas junto a la costa de Puerto Escondido" loading="lazy"/><div><span className="eyebrow">SABORES · COCINA LOCAL</span><h3>Prueba los sabores de la costa</h3><p>Explora restaurantes y consulta directamente qué platos, horarios y opciones están disponibles.</p>{link('/lugares?categoria=Restaurantes','Ver restaurantes →','thing-link')}</div></article>
+      <article className="thing-card"><img src={destinationPhotos.pier} alt="Pasarela del muelle turístico de Puerto Escondido" loading="lazy"/><div><span className="eyebrow">EXPERIENCIAS LOCALES</span><h3>Descubre con anfitriones del Puerto</h3><p>Busca tours y experiencias del directorio para consultar disponibilidad, duración y punto de encuentro.</p>{link('/lugares?categoria=Tours','Explorar tours →','thing-link')}</div></article>
     </section>
     <section className="things-note"><span className="eyebrow">VIAJA CON RESPETO</span><p>Antes de visitar playas, senderos o manglares, confirma acceso y condiciones con un guía o anfitrión local. Evita dejar residuos y respeta los espacios comunitarios.</p><a href="https://conectaregioncaribe.mintic.gov.co/producto/ecorrido-turistico-por-puerto-escondido-y-cristo-rey/" target="_blank" rel="noreferrer">Fuente: recorrido turístico de Puerto Escondido y Cristo Rey ↗</a></section>
     <section className="trip-planner-end"><span className="eyebrow light">ARMA TU VISITA</span><h2>¿Ya sabes por dónde<br/><em>empezar?</em></h2>{link('/planea-tu-viaje','Organizar mi viaje →','cream-btn')}</section>
@@ -1037,7 +1053,7 @@ function App() {
 
   if (path === '/municipio') return <>{header}<main>
     {town ? <>
-      <section className="town-hero municipality-hero" style={{backgroundImage:`linear-gradient(90deg,rgba(12,36,31,.79),rgba(12,36,31,.2)),url('${picture(town.coverImageUrl)}')`}}><div className="municipality-hero-copy"><span className="eyebrow light">{town.department.toUpperCase()} · LITORAL CARIBE</span><h1>{town.name}<br/><em>mar, memoria y vida.</em></h1><p>{town.tagline}</p><a className="cream-btn" href="#archivo-historico">Recorrer su historia <span>↓</span></a></div><div className="town-stats"><div><b>1854</b><span>origen del poblado</span></div><div><b>27 km</b><span>de costa Caribe</span></div><div><b>423 km²</b><span>de territorio</span></div></div></section>
+      <section className="town-hero municipality-hero" style={{backgroundImage:`linear-gradient(90deg,rgba(12,36,31,.79),rgba(12,36,31,.2)),url('${destinationPhotos.town}')`}}><div className="municipality-hero-copy"><span className="eyebrow light">{town.department.toUpperCase()} · LITORAL CARIBE</span><h1>{town.name}<br/><em>mar, memoria y vida.</em></h1><p>{town.tagline}</p><a className="cream-btn" href="#archivo-historico">Recorrer su historia <span>↓</span></a></div><div className="town-stats"><div><b>1854</b><span>origen del poblado</span></div><div><b>27 km</b><span>de costa Caribe</span></div><div><b>423 km²</b><span>de territorio</span></div></div></section>
       <section className="town-intro section municipality-intro"><div><span className="eyebrow">UN MUNICIPIO ENTRE MAR Y COLINAS</span><h2>Un Caribe de<br/><em>muchas historias.</em></h2></div><div><p>{town.introduction}</p><p>{town.geography}</p><a className="town-wiki-link" href={town.wikipediaUrl || 'https://es.wikipedia.org/wiki/Puerto_Escondido_(C%C3%B3rdoba)'} target="_blank" rel="noreferrer">Leer el artículo de Wikipedia ↗</a></div></section>
       {town.wikipediaSummary && <section className="wiki-summary section"><div className="wiki-summary-mark">W</div><div><span className="eyebrow">RESUMEN DE WIKIPEDIA · SINCRONIZADO DESDE SU API</span><p>{town.wikipediaSummary}</p><a href={town.wikipediaUrl || 'https://es.wikipedia.org/wiki/Puerto_Escondido_(C%C3%B3rdoba)'} target="_blank" rel="noreferrer">Consultar el artículo y sus fuentes ↗</a></div></section>}
       <section className="town-history section" id="historia-identidad"><div className="town-section-heading"><span className="eyebrow">MEMORIA PORTEÑA</span><h2>Una historia hecha <em>de encuentros.</em></h2><p>{town.history}</p></div><div className="history-markers"><article><span>1854</span><p>Familias procedentes de Barú se establecen en Puerto Escondido Viejo.</p></article><article><span>1923</span><p>El poblado es reconocido como corregimiento de Lorica, entonces en Bolívar.</p></article><article><span>1928</span><p>Se precisan los caseríos que integran el corregimiento y su cabecera.</p></article><article><span>1961</span><p>Puerto Escondido es erigido municipio del recién creado departamento de Córdoba.</p></article></div></section>

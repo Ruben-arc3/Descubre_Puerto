@@ -997,13 +997,13 @@
 }
 .destination-nav .planner-option-icon svg { display: none !important; }
 .destination-nav a.planner-menu-option:nth-of-type(1) .planner-option-icon {
-  background-image: url('https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=160&q=75') !important;
+  background-image: url('/images/puerto-escondido/muelle-colorido.webp') !important;
 }
 .destination-nav a.planner-menu-option:nth-of-type(2) .planner-option-icon {
-  background-image: url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=160&q=75') !important;
+  background-image: url('/images/puerto-escondido/letrero-puerto.webp') !important;
 }
 .destination-nav a.planner-menu-option:nth-of-type(3) .planner-option-icon {
-  background-image: url('https://images.unsplash.com/photo-1524666041070-9fc7f7f7c5d4?auto=format&fit=crop&w=160&q=75') !important;
+  background-image: url('/images/puerto-escondido/costa-palmeras.webp') !important;
 }
 .destination-nav .planner-menu-option > span:not(.planner-option-icon) {
   justify-self: start;
