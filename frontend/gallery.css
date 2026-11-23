@@ -1,5 +1,10 @@
 /* Galería comunitaria: fotos, autoría y popularidad llegan desde la API. */
 .gallery-page .gallery-hero{min-height:270px;grid-template-columns:minmax(0,1fr) auto;padding:45px 7% 42px;color:#193d32;background:linear-gradient(115deg,#f4f2e9,#e8e9df 70%,#e1e5db)!important}
+.list-pagination{display:flex;align-items:center;justify-content:center;gap:14px;margin:28px auto 0;color:#68776d;font-size:10px}
+.list-pagination button{min-height:34px;padding:0 14px;border:1px solid #d9e0d7;border-radius:999px;background:#fffefa;color:#31573f;font:600 9px 'DM Sans',sans-serif;cursor:pointer;transition:background .18s,border-color .18s,color .18s}
+.list-pagination button:hover:not(:disabled){border-color:#31573f;background:#31573f;color:#fffefa}
+.list-pagination button:disabled{opacity:.45;cursor:not-allowed}
+.gallery-pagination{margin-top:30px}
 .gallery-page .gallery-hero .eyebrow{color:#526d5d;font-size:8px}.gallery-page .gallery-hero h1{margin:13px 0 8px;font-size:clamp(39px,5vw,59px)}
 .gallery-page .gallery-hero p{max-width:520px;margin:0 0 17px;color:#69776c;font-size:11px;line-height:1.65}.gallery-page .gallery-hero .cream-btn{min-height:39px;padding:11px 14px;background:#173f34;color:#fffdf5;font-size:9px}
 .gallery-page .gallery-hero-art{display:none}.gallery-hero-count{display:flex;align-items:baseline;gap:8px;align-self:end;margin-bottom:6px;color:#738075}.gallery-hero-count b{color:#163e33;font:500 32px 'Playfair Display',serif}.gallery-hero-count span{font-size:9px;line-height:1.4}

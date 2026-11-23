@@ -28,11 +28,24 @@ function toGalleryCard(photo: { id: string; caption: string; category: string; l
 // La galería es pública para consultar; solo la escritura exige una sesión válida.
 galleryRouter.get('/', optionalAuth, async (req, res) => {
   const popular = req.query.sort === 'popular';
-  const photos = await prisma.galleryPhoto.findMany({
-    orderBy: popular ? [{ likes: { _count: 'desc' } }, { createdAt: 'desc' }] : [{ createdAt: 'desc' }],
-    select: { id: true, caption: true, category: true, location: true, createdAt: true, isSample: true, sourceCredit: true, sourceUrl: true, _count: { select: { likes: true } }, ...(req.user ? { likes: { where: { userId: req.user.id }, select: { userId: true } } } : {}), user: { select: { fullName: true } } },
-  });
-  res.json({ data: photos.map(toGalleryCard) });
+  const page = Math.max(1, Number.parseInt(String(req.query.page || '1'), 10) || 1);
+  const limit = Math.min(48, Math.max(1, Number.parseInt(String(req.query.limit || '24'), 10) || 24));
+  const category = typeof req.query.category === 'string' ? req.query.category : undefined;
+  const where = category && category !== 'Todas' ? { category } : {};
+  const [photos, total, categoryRows] = await Promise.all([
+    prisma.galleryPhoto.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: popular ? [{ likes: { _count: 'desc' } }, { createdAt: 'desc' }] : [{ createdAt: 'desc' }],
+      select: { id: true, caption: true, category: true, location: true, createdAt: true, isSample: true, sourceCredit: true, sourceUrl: true, _count: { select: { likes: true } }, ...(req.user ? { likes: { where: { userId: req.user.id }, select: { userId: true } } } : {}), user: { select: { fullName: true } } },
+    }),
+    prisma.galleryPhoto.count({ where }),
+    prisma.galleryPhoto.groupBy({ by: ['category'], _count: { _all: true } }),
+  ]);
+  const categoryCounts = Object.fromEntries(categoryRows.map((row) => [row.category, row._count._all]));
+  const allTotal = categoryRows.reduce((sum, row) => sum + row._count._all, 0);
+  res.json({ data: photos.map(toGalleryCard), pagination: { page, limit, total, totalPages: Math.ceil(total / limit), allTotal, categoryCounts } });
 });
 
 galleryRouter.post('/:id/like', requireAuth, async (req, res) => {

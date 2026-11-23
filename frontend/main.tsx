@@ -37,6 +37,7 @@ declare global {
   }
 }
 const categories = ['Todo', 'Hoteles', 'Restaurantes', 'Tours', 'Transportes'];
+const directoryCategories = categories.filter((category) => category !== 'Transportes');
 const picture = (url?: string | null) => url || 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=85';
 const transportFallbackPhotos = [
   'https://images.unsplash.com/photo-1725864832531-f50f4639dd00?auto=format&fit=crop&w=1400&q=85',
@@ -99,9 +100,22 @@ function useRoute() {
 function App() {
   const { path, route, go } = useRoute();
   const [places, setPlaces] = useState<Business[]>([]);
+  const [catalogPlaces, setCatalogPlaces] = useState<Business[]>([]);
+  const [catalogTotal, setCatalogTotal] = useState(0);
+  const [catalogTotalPages, setCatalogTotalPages] = useState(1);
+  const [catalogCategoryCounts, setCatalogCategoryCounts] = useState<Record<string, number>>({});
+  const [catalogZones, setCatalogZones] = useState<string[]>([]);
+  const [catalogPage, setCatalogPage] = useState(1);
+  const [catalogLoading, setCatalogLoading] = useState(false);
   const [town, setTown] = useState<Municipality | null>(null);
   const [townPhotos, setTownPhotos] = useState<MunicipalityPhoto[]>([]);
   const [gallery, setGallery] = useState<GalleryPhoto[]>([]);
+  const [galleryTotal, setGalleryTotal] = useState(0);
+  const [galleryAllTotal, setGalleryAllTotal] = useState(0);
+  const [galleryTotalPages, setGalleryTotalPages] = useState(1);
+  const [galleryCategoryCounts, setGalleryCategoryCounts] = useState<Record<string, number>>({});
+  const [galleryPage, setGalleryPage] = useState(1);
+  const [galleryRefresh, setGalleryRefresh] = useState(0);
   const [galleryLoading, setGalleryLoading] = useState(false);
   const [galleryError, setGalleryError] = useState('');
   const [gallerySort, setGallerySort] = useState<'recent' | 'popular'>('recent');
@@ -148,6 +162,12 @@ function App() {
   const [error, setError] = useState('');
   const [active, setActive] = useState(() => new URLSearchParams(window.location.search).get('categoria') || 'Todo');
   const [query, setQuery] = useState('');
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
+  const [locationType, setLocationType] = useState('');
+  const [locationZone, setLocationZone] = useState('');
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
   const [saved, setSaved] = useState<string[]>([]);
   const [menu, setMenu] = useState(false);
   const scrollProgressRef = useRef<HTMLSpanElement | null>(null);
@@ -309,10 +329,43 @@ function App() {
   };
 
   useEffect(() => {
-    getData<Business[]>('/businesses').then(setPlaces).catch(() => setError('No fue posible cargar los lugares. Comprueba que la API y PostgreSQL estén en ejecución.'));
+    getData<Business[]>('/businesses?limit=100').then(setPlaces).catch(() => setError('No fue posible cargar los lugares. Comprueba que la API y PostgreSQL estén en ejecución.'));
     getData<Municipality>('/municipality').then(setTown).catch(() => setError('No fue posible cargar la información municipal.'));
     getData<MunicipalityPhoto[]>('/municipality/media').then(setTownPhotos).catch(() => setTownPhotos([]));
   }, []);
+
+  useEffect(() => {
+    if (path !== '/lugares') return;
+    let activeRequest = true;
+    const timeout = window.setTimeout(() => {
+      setCatalogLoading(true);
+      const params = new URLSearchParams({ page: String(catalogPage), limit: '12' });
+      params.set('excludeCategory', 'transportes');
+      if (active !== 'Todo') params.set('category', active.toLowerCase());
+      if (query.trim()) params.set('search', query.trim());
+      if (priceMin) params.set('minPrice', priceMin);
+      if (priceMax) params.set('maxPrice', priceMax);
+      if (locationType) params.set('zoneType', locationType);
+      if (locationZone) params.set('zone', locationZone);
+      if (selectedFeatures.length) params.set('features', selectedFeatures.join(','));
+      apiFetch(`${API}/businesses?${params.toString()}`, { cache: 'no-store' })
+        .then(async (response) => {
+          if (!response.ok) throw new Error(`La API respondió ${response.status}`);
+          return await response.json() as { data: Business[]; pagination: { total: number; totalPages: number; categoryCounts: Record<string, number>; zones: string[] } };
+        })
+        .then((result) => {
+          if (!activeRequest) return;
+          setCatalogPlaces(result.data);
+          setCatalogTotal(result.pagination.total);
+          setCatalogTotalPages(Math.max(1, result.pagination.totalPages));
+          setCatalogCategoryCounts(result.pagination.categoryCounts || {});
+          setCatalogZones(result.pagination.zones || []);
+        })
+        .catch(() => { if (activeRequest) setError('No fue posible cargar esta página del directorio.'); })
+        .finally(() => { if (activeRequest) setCatalogLoading(false); });
+    }, query.trim() ? 250 : 0);
+    return () => { activeRequest = false; window.clearTimeout(timeout); };
+  }, [path, active, query, catalogPage, priceMin, priceMax, locationType, locationZone, selectedFeatures]);
 
   useEffect(() => {
     if (path !== '/mis-hoteles' || !sessionActive) return;
@@ -323,9 +376,21 @@ function App() {
 
   // Los accesos del menú comparten la página de directorio, pero abren el filtro elegido.
   useEffect(() => {
-    const selected = new URLSearchParams(route.split('?')[1] || '').get('categoria');
-    setActive(selected || 'Todo');
-  }, [route]);
+    const params = new URLSearchParams(route.split('?')[1] || '');
+    const selected = params.get('categoria') || params.get('category');
+    if (path === '/lugares' && selected?.toLowerCase() === 'transportes') {
+      go('/transportes');
+      return;
+    }
+    setActive(categories.find((item) => item.toLowerCase() === selected?.toLowerCase()) || 'Todo');
+    setQuery(params.get('search') || '');
+    setPriceMin(params.get('minPrice') || '');
+    setPriceMax(params.get('maxPrice') || '');
+    setLocationType(params.get('zoneType') || '');
+    setLocationZone(params.get('zone') || '');
+    setSelectedFeatures((params.get('features') || '').split(',').filter(Boolean));
+    setAdvancedFiltersOpen(Boolean(params.get('minPrice') || params.get('maxPrice') || params.get('zoneType') || params.get('zone') || params.get('features')));
+  }, [route, path]);
 
   // Cada cuenta consulta sus favoritos en PostgreSQL al autenticarse.
   useEffect(() => {
@@ -522,14 +587,23 @@ function App() {
     setGalleryLoading(true);
     setGalleryError('');
     const headers = sessionActive ? { } : undefined;
-    apiFetch(`${API}/gallery${gallerySort === 'popular' ? '?sort=popular' : ''}`, { headers }).then(async (response) => {
+    const params = new URLSearchParams({ page: String(galleryPage), limit: '18', sort: gallerySort });
+    if (galleryCategory !== 'Todas') params.set('category', galleryCategory);
+    apiFetch(`${API}/gallery?${params.toString()}`, { headers }).then(async (response) => {
       if (!response.ok) throw new Error(`La API respondió ${response.status}`);
-      return (await response.json()).data as GalleryPhoto[];
-    }).then((photos) => { if (activeRequest) setGallery(photos); })
+      return await response.json() as { data: GalleryPhoto[]; pagination: { total: number; totalPages: number; allTotal: number; categoryCounts: Record<string, number> } };
+    }).then((result) => {
+      if (!activeRequest) return;
+      setGallery(result.data);
+      setGalleryTotal(result.pagination.total);
+      setGalleryTotalPages(Math.max(1, result.pagination.totalPages));
+      setGalleryAllTotal(result.pagination.allTotal);
+      setGalleryCategoryCounts(result.pagination.categoryCounts || {});
+    })
       .catch(() => { if (activeRequest) setGalleryError('No se pudo cargar la galería. Intenta actualizar la página.'); })
       .finally(() => { if (activeRequest) setGalleryLoading(false); });
     return () => { activeRequest = false; };
-  }, [path, sessionActive, gallerySort]);
+  }, [path, sessionActive, gallerySort, galleryCategory, galleryPage, galleryRefresh]);
 
   // Solicita a Google el ID token y lo envía al backend, que valida firma, audiencia y vencimiento.
   useEffect(() => {
@@ -638,7 +712,7 @@ function App() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error?.message || 'No se pudo publicar la foto.');
-      setGallery((photos) => [result.data as GalleryPhoto, ...photos]);
+      const uploadedPhoto = result.data as GalleryPhoto; setGalleryPage(1); setGalleryCategory(uploadedPhoto.category); setGalleryRefresh((version) => version + 1);
       setPhotoFile(null);
       setCaption('');
       setPhotoCategory('Playas y mar');
@@ -657,6 +731,7 @@ function App() {
   };
 
   const filtered = useMemo(() => places.filter((place) => {
+    if (place.category.slug === 'transportes') return false;
     const categoryMatches = active === 'Todo' || place.category.name === active;
     const searchable = `${place.name} ${place.zone} ${place.shortDescription} ${place.description} ${place.services.map((service) => service.name).join(' ')} ${place.menuItems.map((item) => item.name).join(' ')}`;
     return categoryMatches && searchable.toLowerCase().includes(query.toLowerCase());
@@ -681,6 +756,29 @@ function App() {
   const closeDropdowns = () => { setOpenDropdown(null); setPinnedDropdown(null); };
   const link = (to: string, label: React.ReactNode, className?: string) => <a className={className} href={to} onClick={(event) => { event.preventDefault(); go(to); setMenu(false); closeDropdowns(); }}>{label}</a>;
   const municipalityLink = () => link('/municipio', <>Conoce Puerto Escondido <span>→</span></>, 'dark-btn');
+  const zoneOptions = catalogZones.length ? catalogZones : [...new Set(places.map((place) => place.zone).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+  const advancedFilterCount = Number(Boolean(priceMin || priceMax)) + Number(Boolean(locationType)) + Number(Boolean(locationZone)) + selectedFeatures.length;
+  const clearAdvancedFilters = () => { setPriceMin(''); setPriceMax(''); setLocationType(''); setLocationZone(''); setSelectedFeatures([]); setCatalogPage(1); };
+  const directorySearchUrl = () => {
+    const params = new URLSearchParams();
+    if (query.trim()) params.set('search', query.trim());
+    if (active !== 'Todo') params.set('categoria', active);
+    if (priceMin) params.set('minPrice', priceMin);
+    if (priceMax) params.set('maxPrice', priceMax);
+    if (locationType) params.set('zoneType', locationType);
+    if (locationZone) params.set('zone', locationZone);
+    if (selectedFeatures.length) params.set('features', selectedFeatures.join(','));
+    return `/lugares${params.size ? `?${params.toString()}` : ''}`;
+  };
+  const advancedFilterPanel = <div className="advanced-filter-panel">
+    <div className="advanced-filter-heading"><div><b>Afina tu búsqueda</b><small>Precios en pesos colombianos · comodidades reportadas por el alojamiento</small></div>{advancedFilterCount > 0 && <button type="button" onClick={clearAdvancedFilters}>Limpiar filtros</button>}</div>
+    <div className="advanced-filter-fields">
+      <fieldset className="advanced-price-filter"><legend>Rango de precio</legend><label>Desde<input type="number" min="0" step="5000" inputMode="numeric" value={priceMin} onChange={(event) => { const next = event.target.value; setPriceMin(next); if (priceMax && next && Number(priceMax) < Number(next)) setPriceMax(''); setCatalogPage(1); }} placeholder="$ 0"/></label><span aria-hidden="true">—</span><label>Hasta<input type="number" min={priceMin || 0} step="5000" inputMode="numeric" value={priceMax} onChange={(event) => { const next = event.target.value; setPriceMax(next); if (priceMin && next && Number(priceMin) > Number(next)) setPriceMin(next); setCatalogPage(1); }} placeholder="Sin límite"/></label></fieldset>
+      <label className="advanced-select-filter">Zona general<select value={locationType} onChange={(event) => { setLocationType(event.target.value); setCatalogPage(1); }}><option value="">Todas</option><option value="urban">Zona urbana</option><option value="rural">Zona rural</option><option value="beach">Playas y mar</option></select></label>
+      <label className="advanced-select-filter">Localidad<select value={locationZone} onChange={(event) => { setLocationZone(event.target.value); setCatalogPage(1); }}><option value="">Todas</option>{zoneOptions.map((zone) => <option key={zone} value={zone}>{zone}</option>)}</select></label>
+      <fieldset className="advanced-feature-filter"><legend>Características</legend>{[['pets', 'Admite mascotas'], ['air-conditioning', 'Aire acondicionado'], ['parking', 'Parqueadero']].map(([feature, label]) => <label key={feature}><input type="checkbox" checked={selectedFeatures.includes(feature)} onChange={(event) => { setSelectedFeatures((current) => event.target.checked ? [...current, feature] : current.filter((item) => item !== feature)); setCatalogPage(1); }}/>{label}</label>)}</fieldset>
+    </div>
+  </div>;
   const mediaSource = (place: Business, media: Business['media'][number]) => media.imageUrl
     ? (media.imageUrl.startsWith('http') ? media.imageUrl : apiImage(media.imageUrl))
     : `${API}/businesses/${place.id}/media/${media.id}/image`;
@@ -800,7 +898,7 @@ function App() {
     <div className="nav-side">{currentUser && <button className="saved nav-favorites" aria-label="Ver favoritos" onClick={() => go('/favoritos')}>♡ <span>Guardados {saved.length}</span></button>}{currentUser?.role && ['BUSINESS_OWNER','SUPERADMIN','ALCALDIA_ADMIN'].includes(currentUser.role) && link('/mis-hoteles','Mi negocio','login-link')}{currentUser ? <><span className="user-chip">{currentUser.fullName.split(' ')[0]}</span><button className="signout" onClick={signOut}>Salir</button></> : <><button className="login-link" onClick={() => {setAfterLoginAction('none');setAuthMode('login');setGoogleError('');setAuthOpen(true);}}>Iniciar sesión</button>{link('/registrar-negocio',<>Registra tu negocio <span>↗</span></>,'register-link')}</>}</div>
   </header>{authToast}{authDialog}{placeDetail}{inquiryDialog}</>;
 
-  const footer = <footer><a className="brand footer-brand" href="/" onClick={(e) => {e.preventDefault();go('/');}}><span className="brand-mark">P.</span><span>PUERTO<br/><small>ESCONDIDO</small></span></a><span>Un destino con alma · Córdoba, Colombia</span><span>© 2026 Puerto Escondido</span></footer>;
+  const footer = <footer className="site-footer"><div className="footer-inner"><div className="footer-columns"><section className="footer-about">{link('/',<><span className="brand-mark">P.</span><span>PUERTO<br/><small>ESCONDIDO</small></span></>,'brand footer-brand')}<p>Una guía para descubrir los paisajes, sabores y experiencias de Puerto Escondido, Córdoba, y conectar con quienes hacen parte del destino.</p><span className="footer-location">Puerto Escondido · Córdoba, Colombia</span></section><nav className="footer-column" aria-label="Explora y planea"><h2>EXPLORA Y PLANEA</h2>{link('/lugares','Lugares y comercios')}{link('/que-hacer','Qué hacer')}{link('/transportes','Cómo llegar y transporte')}{link('/mapa','Mapa interactivo')}</nav><nav className="footer-column" aria-label="Municipio y comunidad"><h2>MUNICIPIO Y COMUNIDAD</h2>{link('/municipio','Historia e identidad')}{link('/eventos','Eventos locales')}{link('/galeria','Galería')}{link('/registrar-negocio','Registra tu negocio')}</nav></div><div className="footer-bottom"><span>© 2026 Descubre Puerto Escondido · Córdoba, Colombia</span><span>Las fotografías conservan el crédito de sus autores.</span></div></div></footer>;
 
   if (path === '/admin') return <AdminDashboard sessionActive={sessionActive} userName={currentUser?.fullName} onRequestLogin={() => { setAfterLoginAction('admin'); setAuthMode('login'); setGoogleError(''); setAuthOpen(true); go('/'); }} />;
 
@@ -841,19 +939,21 @@ function App() {
     </>}
     </section></main>{footer}</>;
 
-  if (path === '/lugares') return <>{header}<main className="catalog-page"><section className="catalog-intro"><div className="catalog-breadcrumb">Puerto Escondido <span>/</span> Explora <span>/</span> Directorio</div><div className="catalog-heading"><div><span className="eyebrow">ALOJAMIENTOS · SABORES · EXPERIENCIAS</span><h1>Explora <em>el Puerto.</em></h1><p>Encuentra lugares, servicios y experiencias locales para armar tu visita.</p></div><span className="catalog-total"><b>{filtered.length}</b><small>{filtered.length === 1 ? 'opción' : 'opciones'}</small></span></div></section><section className="catalog-content"><div className="catalog-toolbar"><label className="catalog-search"><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Busca por nombre, servicio o plato" aria-label="Buscar en los lugares"/><kbd>Buscar</kbd></label><div className="catalog-filters" aria-label="Filtrar por categoría">{categories.map((item) => {const count = item === 'Todo' ? places.length : places.filter((place) => place.category.name.toLowerCase() === item.toLowerCase()).length; return <button key={item} className={active === item ? 'catalog-filter active' : 'catalog-filter'} onClick={() => setActive(item)}>{item}<span>{count}</span></button>;})}</div></div>{error && <p className="api-error">{error}</p>}<div className="cards directory-cards">{filtered.length ? filtered.map((place) => card(place)) : !error && <p className="empty">{places.length ? 'No hay lugares que coincidan con la búsqueda.' : 'Cargando lugares del directorio…'}</p>}</div></section></main>{footer}</>;
-
-  if (path === '/favoritos') {
-    const favorites = places.filter((place) => saved.includes(place.id));
-    return <>{header}<main><section className="directory-hero favorites-hero"><span className="eyebrow light">TU VIAJE, A TU MANERA</span><h1>Una lista de<br/><em>lugares por vivir.</em></h1><p>Guarda tus favoritos y vuelve a ellos cuando estés planeando tu visita.</p></section><section className="section directory-section"><div className="section-heading"><div><span className="eyebrow">MIS GUARDADOS</span><h2>{favorites.length ? `${favorites.length} lugares guardados` : 'Tu lista empieza aquí.'}</h2></div>{link('/lugares','Explorar directorio ↗','under-link')}</div>{favoriteError && <p className="api-error">{favoriteError}</p>}<div className="cards directory-cards">{favorites.length ? favorites.map((place) => card(place)) : <div className="empty-state"><span>♡</span><p>{sessionActive ? 'Toca el corazón de cualquier lugar para guardarlo aquí.' : 'Inicia sesión para ver tus lugares guardados.'}</p>{!sessionActive && <button className="dark-btn" onClick={() => {setAfterLoginAction('none');setAuthMode('login');setAuthOpen(true);}}>Iniciar sesión →</button>}{link('/lugares','Explorar lugares →','dark-btn')}</div>}</div></section></main>{footer}</>;
-  }
-
-  if (path === '/mapa') return <>{header}<main><section className="map-intro"><span className="eyebrow">UBÍCATE EN EL CARIBE CORDOBÉS</span><h1>El camino te<br/><em>trae hasta aquí.</em></h1><p>Explora Puerto Escondido y sus alrededores en el mapa.</p></section><section className="map-section section"><div className="map-frame"><iframe title="Mapa de Puerto Escondido, Córdoba" src="https://www.openstreetmap.org/export/embed.html?bbox=-76.36%2C8.96%2C-76.16%2C9.10&layer=mapnik&marker=9.0192%2C-76.2614" loading="lazy"/></div><div className="map-note"><div><span className="eyebrow">PUERTO ESCONDIDO</span><h2>Córdoba, Colombia</h2><p>Las ubicaciones específicas de los establecimientos se completarán con datos confirmados por cada anfitrión.</p></div><a href="https://www.openstreetmap.org/?mlat=9.0192&mlon=-76.2614#map=12/9.0192/-76.2614" target="_blank" rel="noreferrer" className="dark-btn">Abrir mapa completo ↗</a></div></section><section className="map-discover"><span className="eyebrow">SIGUE EXPLORANDO</span><h2>Encuentra tu próximo plan.</h2>{link('/lugares','Ver lugares y experiencias →','cream-btn')}</section></main>{footer}</>;
+  if (path === '/lugares') return <>{header}<main className="catalog-page">
+    <section className="catalog-intro"><div className="catalog-breadcrumb">Puerto Escondido <span>/</span> Explora <span>/</span> Directorio</div><div className="catalog-heading"><div><span className="eyebrow">ALOJAMIENTOS · SABORES · EXPERIENCIAS</span><h1>Explora <em>el Puerto.</em></h1><p>Encuentra lugares, servicios y experiencias locales para armar tu visita.</p></div><span className="catalog-total"><b>{catalogTotal}</b><small>{catalogTotal === 1 ? 'opción' : 'opciones'}</small></span></div></section>
+    <section className="catalog-content"><div className="catalog-toolbar"><label className="catalog-search"><span>⌕</span><input value={query} onChange={(event) => { setQuery(event.target.value); setCatalogPage(1); }} placeholder="Busca por nombre, servicio o plato" aria-label="Buscar en los lugares"/><kbd>Buscar</kbd></label><div className="catalog-filters" aria-label="Filtrar por categoría">{directoryCategories.map((item) => {const count = item === 'Todo' ? directoryCategories.slice(1).reduce((sum, category) => sum + (catalogCategoryCounts[category.toLowerCase()] || 0), 0) : catalogCategoryCounts[item.toLowerCase()] || 0; return <button key={item} className={active === item ? 'catalog-filter active' : 'catalog-filter'} onClick={() => { setActive(item); setCatalogPage(1); }}>{item}<span>{count}</span></button>;})}</div></div>
+      <a className="catalog-transport-shortcut" href="/transportes" onClick={(event) => { event.preventDefault(); go('/transportes'); }}><span className="catalog-transport-kicker">¿NECESITAS LLEGAR?</span><span className="catalog-transport-copy"><b>Cómo llegar y transporte</b><small>Consulta rutas y opciones para moverte por el municipio.</small></span><strong>Ver opciones <span>→</span></strong></a>
+      <div className="catalog-advanced-toolbar"><p>{catalogTotal} {catalogTotal === 1 ? 'resultado' : 'resultados'}{advancedFilterCount > 0 ? ` · ${advancedFilterCount} filtros activos` : ''}</p><button type="button" className={advancedFiltersOpen ? 'advanced-filter-toggle active' : 'advanced-filter-toggle'} aria-expanded={advancedFiltersOpen} onClick={() => setAdvancedFiltersOpen((open) => !open)}><span>＋</span> Filtros avanzados {advancedFilterCount > 0 && <b>{advancedFilterCount}</b>}</button></div>
+      {advancedFiltersOpen && advancedFilterPanel}
+      {error && <p className="api-error">{error}</p>}
+      {catalogLoading && !catalogPlaces.length ? <p className="empty">Cargando lugares del directorio…</p> : catalogPlaces.length ? <div className="cards directory-cards" aria-busy={catalogLoading}>{catalogPlaces.map((place) => card(place))}</div> : !error && <p className="empty">No hay lugares que coincidan con la búsqueda.</p>}
+      {catalogTotalPages > 1 && <nav className="list-pagination" aria-label="Páginas del directorio"><button disabled={catalogPage <= 1 || catalogLoading} onClick={() => setCatalogPage((page) => Math.max(1, page - 1))}>← Anterior</button><span>Página {catalogPage} de {catalogTotalPages}</span><button disabled={catalogPage >= catalogTotalPages || catalogLoading} onClick={() => setCatalogPage((page) => Math.min(catalogTotalPages, page + 1))}>Siguiente →</button></nav>}
+    </section>
+  </main>{footer}</>;
 
   const galleryCategories = ['Todas', 'Playas y mar', 'Naturaleza y manglares', 'Gastronomía', 'Cultura y pueblo'];
-  const displayedGallery = galleryCategory === 'Todas' ? gallery : gallery.filter((photo) => photo.category === galleryCategory);
-
-  if (path === '/galeria') return <>{header}<main className="gallery-page"><section className="gallery-hero"><div><span className="eyebrow light">PLAYAS · CULTURA · GASTRONOMÍA</span><h1>Postales de <em>el Puerto.</em></h1><p>Un recorrido visual por playas vírgenes, manglares silenciosos, sabores ancestrales y colores del Caribe cordobés capturados por locales y viajeros.</p><button className="cream-btn" onClick={requestUpload}>＋ &nbsp; Compartir mi postal <span>→</span></button></div><div className="gallery-hero-art"><span>PUERTO</span><b>VIVE<br/>AQUÍ</b><i>09° 01’ N · 76° 15’ O</i></div><div className="gallery-hero-count"><b>{gallery.length}</b><span>fotografías<br/>de la comunidad</span></div></section><section className="section community-gallery"><div className="gallery-toolbar"><div className="gallery-categories" aria-label="Filtrar fotos">{galleryCategories.map((item) => {const count = item === 'Todas' ? gallery.length : gallery.filter((photo) => photo.category === item).length; return <button key={item} className={galleryCategory === item ? 'gallery-filter active' : 'gallery-filter'} onClick={() => setGalleryCategory(item)} aria-pressed={galleryCategory === item}>{item}<span>{count}</span></button>;})}</div><div className="gallery-tools"><div className="gallery-sort" aria-label="Ordenar fotografías"><button className={gallerySort === 'recent' ? 'active' : ''} onClick={() => setGallerySort('recent')}>Recientes</button><button className={gallerySort === 'popular' ? 'active' : ''} onClick={() => setGallerySort('popular')}>♥ Populares</button></div><button className="gallery-share" onClick={requestUpload}>＋ Compartir mi postal</button></div></div>{galleryError && <p className="api-error">{galleryError}</p>}{galleryLoading ? <p className="empty">Cargando las fotos de la comunidad…</p> : displayedGallery.length ? <div className="community-grid">{displayedGallery.map((photo) => <article className="community-photo" key={photo.id}><div className="community-photo-frame"><button className="community-photo-image" onClick={() => setSelectedPhoto(photo)} aria-label={`Ver detalles: ${photo.caption || photo.category}`}><img src={apiImage(photo.imageUrl)} alt={photo.caption || `Foto compartida por ${photo.user.fullName}`} loading="lazy"/><span className="photo-open-hint">Ver postal ↗</span></button><span className="photo-category-tag">{photo.category}</span><button className={photo.likedByMe ? 'photo-like liked' : 'photo-like'} onClick={() => void toggleGalleryLike(photo)} aria-label={`${photo.likedByMe ? 'Quitar like' : 'Dar like'} · ${photo.likesCount} likes`} title={sessionActive ? 'Me gusta' : 'Inicia sesión para dar me gusta'}>♡ <b>{photo.likesCount}</b></button><span className="photo-location-tag">⌖ {photo.location}</span></div><div className="community-photo-info"><p>{photo.caption || 'Un momento en Puerto Escondido'}</p><div className="photo-byline"><span>Por {photo.user.fullName}</span><small>{new Date(photo.createdAt).toLocaleDateString('es-CO')}</small></div><div className="photo-card-actions"><button onClick={() => setSelectedPhoto(photo)}>Ver postal <span>↗</span></button><a href={`${apiImage(photo.imageUrl)}?download=1`} download>Descargar <span>↓</span></a></div>{photo.sourceCredit && <a className="photo-credit" href={photo.sourceUrl || '#'} target="_blank" rel="noreferrer">Imagen: {photo.sourceCredit} ↗</a>}</div></article>)}</div> : !galleryError && <div className="gallery-empty"><span>✳</span><h3>{gallery.length ? 'Todavía no hay postales en esta categoría.' : 'El primer recuerdo puede ser tuyo.'}</h3><p>Sube una foto del municipio y empieza la galería de la comunidad.</p><button className="dark-btn" onClick={requestUpload}>Compartir la primera foto <span>→</span></button></div>}<p className="gallery-guidance">Comparte solo imágenes propias o que tengas permiso para publicar. Aceptamos JPG, PNG y WebP de hasta 5 MB.</p></section></main>{footer}
+  const displayedGallery = gallery;
+  if (path === '/galeria') return <>{header}<main className="gallery-page"><section className="gallery-hero"><div><span className="eyebrow light">PLAYAS · CULTURA · GASTRONOMÍA</span><h1>Postales de <em>el Puerto.</em></h1><p>Un recorrido visual por playas vírgenes, manglares silenciosos, sabores ancestrales y colores del Caribe cordobés capturados por locales y viajeros.</p><button className="cream-btn" onClick={requestUpload}>＋ &nbsp; Compartir mi postal <span>→</span></button></div><div className="gallery-hero-art"><span>PUERTO</span><b>VIVE<br/>AQUÍ</b><i>09° 01’ N · 76° 15’ O</i></div><div className="gallery-hero-count"><b>{galleryAllTotal}</b><span>fotografías<br/>de la comunidad</span></div></section><section className="section community-gallery"><div className="gallery-toolbar"><div className="gallery-categories" aria-label="Filtrar fotos">{galleryCategories.map((item) => {const count = item === 'Todas' ? galleryAllTotal : galleryCategoryCounts[item] || 0; return <button key={item} className={galleryCategory === item ? 'gallery-filter active' : 'gallery-filter'} onClick={() => { setGalleryCategory(item); setGalleryPage(1); }} aria-pressed={galleryCategory === item}>{item}<span>{count}</span></button>;})}</div><div className="gallery-tools"><div className="gallery-sort" aria-label="Ordenar fotografías"><button className={gallerySort === 'recent' ? 'active' : ''} onClick={() => { setGallerySort('recent'); setGalleryPage(1); }}>Recientes</button><button className={gallerySort === 'popular' ? 'active' : ''} onClick={() => { setGallerySort('popular'); setGalleryPage(1); }}>♥ Populares</button></div><button className="gallery-share" onClick={requestUpload}>＋ Compartir mi postal</button></div></div>{galleryError && <p className="api-error">{galleryError}</p>}{galleryLoading ? <p className="empty">Cargando las fotos de la comunidad…</p> : displayedGallery.length ? <div className="community-grid">{displayedGallery.map((photo) => <article className="community-photo" key={photo.id}><div className="community-photo-frame"><button className="community-photo-image" onClick={() => setSelectedPhoto(photo)} aria-label={`Ver detalles: ${photo.caption || photo.category}`}><img src={apiImage(photo.imageUrl)} alt={photo.caption || `Foto compartida por ${photo.user.fullName}`} loading="lazy"/><span className="photo-open-hint">Ver postal ↗</span></button><span className="photo-category-tag">{photo.category}</span><button className={photo.likedByMe ? 'photo-like liked' : 'photo-like'} onClick={() => void toggleGalleryLike(photo)} aria-label={`${photo.likedByMe ? 'Quitar like' : 'Dar like'} · ${photo.likesCount} likes`} title={sessionActive ? 'Me gusta' : 'Inicia sesión para dar me gusta'}>♡ <b>{photo.likesCount}</b></button><span className="photo-location-tag">⌖ {photo.location}</span></div><div className="community-photo-info"><p>{photo.caption || 'Un momento en Puerto Escondido'}</p><div className="photo-byline"><span>Por {photo.user.fullName}</span><small>{new Date(photo.createdAt).toLocaleDateString('es-CO')}</small></div><div className="photo-card-actions"><button onClick={() => setSelectedPhoto(photo)}>Ver postal <span>↗</span></button><a href={`${apiImage(photo.imageUrl)}?download=1`} download>Descargar <span>↓</span></a></div>{photo.sourceCredit && <a className="photo-credit" href={photo.sourceUrl || '#'} target="_blank" rel="noreferrer">Imagen: {photo.sourceCredit} ↗</a>}</div></article>)}</div> : !galleryError && <div className="gallery-empty"><span>✳</span><h3>{galleryTotal ? 'Todavía no hay postales en esta categoría.' : 'El primer recuerdo puede ser tuyo.'}</h3><p>Sube una foto del municipio y empieza la galería de la comunidad.</p><button className="dark-btn" onClick={requestUpload}>Compartir la primera foto <span>→</span></button></div>}{galleryTotalPages > 1 && <nav className="list-pagination gallery-pagination" aria-label="Páginas de la galería"><button disabled={galleryPage <= 1 || galleryLoading} onClick={() => setGalleryPage((page) => Math.max(1, page - 1))}>← Anterior</button><span>Página {galleryPage} de {galleryTotalPages}</span><button disabled={galleryPage >= galleryTotalPages || galleryLoading} onClick={() => setGalleryPage((page) => Math.min(galleryTotalPages, page + 1))}>Siguiente →</button></nav>}<p className="gallery-guidance">Comparte solo imágenes propias o que tengas permiso para publicar. Aceptamos JPG, PNG y WebP de hasta 5 MB.</p></section></main>{footer}
     {uploadOpen && <div className="modal-backdrop" onMouseDown={(event) => {if(event.target === event.currentTarget)setUploadOpen(false);}}><form className="community-modal upload-modal" onSubmit={submitPhoto}><button type="button" className="modal-close" onClick={() => setUploadOpen(false)} aria-label="Cerrar">×</button><span className="eyebrow">COMPARTE TU MIRADA</span><h2>Una postal del Puerto.</h2><p className="signed-in">Sesión iniciada como <b>{currentUser?.fullName}</b></p><label className="upload-drop">{photoPreview ? <img src={photoPreview} alt="Vista previa de la foto"/> : <><span>＋</span><b>Elige una foto</b><small>JPG, PNG o WebP · máximo 5 MB</small></>}<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => {const file=event.target.files?.[0] || null;setUploadError('');if(file && !['image/jpeg','image/png','image/webp'].includes(file.type)){setUploadError('Elige una imagen JPG, PNG o WebP.');setPhotoFile(null);}else if(file && file.size > 5*1024*1024){setUploadError('La foto debe pesar 5 MB o menos.');setPhotoFile(null);}else setPhotoFile(file);}}/></label><label className="caption-label">Cuéntanos algo de este momento <textarea value={caption} onChange={(event) => setCaption(event.target.value)} maxLength={250} placeholder="¿Dónde fue? ¿Qué lo hace especial?"/></label><div className="gallery-upload-meta"><label>Categoría<select value={photoCategory} onChange={(event) => setPhotoCategory(event.target.value)}>{galleryCategories.slice(1).map((category) => <option key={category}>{category}</option>)}</select></label><label>Lugar<input value={photoLocation} onChange={(event) => setPhotoLocation(event.target.value)} maxLength={150} placeholder="Playa, barrio o paraje"/></label></div>{uploadError && <p className="modal-error">{uploadError}</p>}<button className="dark-btn publish-button" type="submit" disabled={!photoFile || uploading}>{uploading ? 'Publicando…' : 'Publicar foto'} <span>→</span></button><small>La imagen se guardará en la base de datos de la plataforma.</small></form></div>}
     {selectedPhoto && <div className="modal-backdrop photo-lightbox" onMouseDown={(event) => {if(event.target === event.currentTarget)setSelectedPhoto(null);}}><section className="lightbox-card" role="dialog" aria-modal="true" aria-label="Detalles de la fotografía"><button className="modal-close" onClick={() => setSelectedPhoto(null)} aria-label="Cerrar">×</button><img src={apiImage(selectedPhoto.imageUrl)} alt={selectedPhoto.caption || 'Foto de Puerto Escondido'}/><div className="lightbox-info"><span className="eyebrow">{selectedPhoto.category} · {selectedPhoto.location}</span><b>{selectedPhoto.caption || 'Un momento en Puerto Escondido'}</b><small>Compartida por {selectedPhoto.user.fullName} · {new Date(selectedPhoto.createdAt).toLocaleDateString('es-CO')}</small>{selectedPhoto.sourceCredit && <a className="photo-credit" href={selectedPhoto.sourceUrl || '#'} target="_blank" rel="noreferrer">Crédito de imagen: {selectedPhoto.sourceCredit} ↗</a>}<div className="lightbox-actions"><button className={selectedPhoto.likedByMe ? 'photo-like liked' : 'photo-like'} onClick={() => void toggleGalleryLike(selectedPhoto)}>♡ <b>{selectedPhoto.likesCount}</b> Me gusta</button><a className="dark-btn" href={`${apiImage(selectedPhoto.imageUrl)}?download=1`} download>Descargar imagen ↓</a></div></div></section></div>}
   </>;
@@ -953,8 +1053,8 @@ function App() {
 
   return <>{header}<main>
     <section className="hero" id="inicio"><div className="hero-image"/><div className="hero-shade"/><div className="hero-content"><span className="eyebrow light">CÓRDOBA · CARIBE COLOMBIANO</span><h1>Donde el mar<br/>te <em>encuentra.</em></h1><p>Un rincón sereno entre manglares, historias<br className="desktop"/> y sabores que se quedan contigo.</p><div className="hero-actions">{link('/lugares',<>Explora el destino <span>→</span></>,'cream-btn')}{link('/planea-tu-viaje','Planea tu viaje ↓','text-link')}</div></div><div className="hero-caption"><span>09° 02’ N &nbsp; 76° 11’ O</span><span>PUERTO ESCONDIDO</span><span className="photo-credit">Foto: Jose Arts</span></div><div className="hero-stamp">UN DESTINO<br/><b>con alma</b></div></section>
-    <section className="search-wrap" id="explora"><div className="search-intro"><span className="eyebrow">ARMA TU ESCAPADA</span><h2>¿Qué te gustaría<br/><em>vivir hoy?</em></h2></div><div className="search-box"><label>Explora el destino</label><div className="search-row"><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Un hotel, restaurante, experiencia…"/><button onClick={() => go('/lugares')}>Buscar <span>→</span></button></div><div className="search-hint">✦ &nbsp; Lugares y servicios del directorio local</div></div></section>
-    <section className="listing section" id="resultados"><div className="section-heading"><div><span className="eyebrow">HECHO PARA DESCUBRIR</span><h2>Un lugar para cada <em>plan.</em></h2></div>{link('/lugares','Ver más ↗','see-more-btn')}</div><div className="filters">{categories.map((item) => <button key={item} className={active === item ? 'filter active' : 'filter'} onClick={() => setActive(item)}>{item}</button>)}</div>{error && <p className="api-error">{error}</p>}<div className="cards">{filtered.slice(0,4).map((place) => card(place))}{!error && filtered.length === 0 && places.length === 0 && <p className="empty">Cargando lugares del directorio…</p>}</div></section>
+    <section className="search-wrap" id="explora"><div className="search-intro"><span className="eyebrow">ARMA TU ESCAPADA</span><h2>¿Qué te gustaría<br/><em>vivir hoy?</em></h2></div><div className="search-box"><label>Explora el destino</label><div className="search-row"><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Un hotel, restaurante, experiencia…" onKeyDown={(event) => { if (event.key === 'Enter') go(directorySearchUrl()); }}/><button type="button" onClick={() => go(directorySearchUrl())}>Buscar <span>→</span></button></div><div className="home-search-actions"><div className="search-hint">✦ &nbsp; Lugares y servicios del directorio local</div><button type="button" className="home-filter-toggle" aria-expanded={advancedFiltersOpen} onClick={() => setAdvancedFiltersOpen((open) => !open)}>＋ Filtros {advancedFilterCount > 0 && <b>{advancedFilterCount}</b>}</button></div>{advancedFiltersOpen && <div className="home-advanced-filters">{advancedFilterPanel}</div>}</div></section>
+    <section className="listing section" id="resultados"><div className="section-heading"><div><span className="eyebrow">HECHO PARA DESCUBRIR</span><h2>Un lugar para cada <em>plan.</em></h2></div>{link('/lugares','Ver más ↗','see-more-btn')}</div><div className="filters">{directoryCategories.map((item) => <button key={item} className={active === item ? 'filter active' : 'filter'} onClick={() => setActive(item)}>{item}</button>)}</div>{error && <p className="api-error">{error}</p>}<div className="cards">{filtered.slice(0,4).map((place) => card(place))}{!error && filtered.length === 0 && places.length === 0 && <p className="empty">Cargando lugares del directorio…</p>}</div><a className="home-transport-shortcut" href="/transportes" onClick={(event) => {event.preventDefault();go('/transportes');}}>¿Buscas cómo llegar? <b>Consulta transportes y rutas <span>→</span></b></a></section>
     <section className="story section" id="municipio"><div className="story-photo"><img src={picture(town?.coverImageUrl)} alt="Paisaje de Puerto Escondido"/><span className="photo-note">TERRITORIO DE MAR Y CIÉNAGA</span></div><div className="story-copy"><span className="eyebrow">MÁS QUE UN DESTINO</span><h2>Una historia que<br/>se vive <em>despacio.</em></h2><p>{town?.introduction || 'Puerto Escondido guarda la memoria de pescadores, caminos de agua y comunidades que han hecho del Caribe su hogar.'}</p><p>{town?.culture || 'Conoce sus paisajes, sus tradiciones y las personas que mantienen viva la esencia del territorio.'}</p>{municipalityLink()}<div className="story-note"><b>01 —</b> Naturaleza, cultura y comunidad</div></div></section>
     <section className="events-teaser"><a className="events-teaser-image" href="/eventos" onClick={(event) => {event.preventDefault();go('/eventos');}} style={{backgroundImage:`linear-gradient(0deg,rgba(12,32,27,.3),transparent),url('${eventImage}')`}} aria-label="Conocer la agenda cultural de Puerto Escondido"><span>AGENDA CULTURAL</span></a><div className="events-teaser-copy"><span className="eyebrow">UNA TRADICIÓN QUE NOS REÚNE</span><h2>El Puerto también<br/>se vive al <em>ritmo del tambor.</em></h2><p>Conoce el Festival Nacional del Bullerengue y revisa dónde consultar su próxima programación.</p>{link('/eventos','Ver eventos y cultura local →','under-link')}</div></section>
     <section className="planner-promo"><div><span className="eyebrow light">PLANEACIÓN, SIN COMPLICACIONES</span><h2>¿Un día, un fin de semana<br/>o más tiempo?</h2><p>Arma una ruta sugerida y encuentra en un solo lugar los accesos que necesitas antes de salir.</p>{link('/planea-tu-viaje',<>Planea tu viaje <span>→</span></>,'cream-btn')}</div><span className="planner-promo-mark">PE<br/><b>09° · 76°</b></span></section>
