@@ -885,6 +885,7 @@ function App() {
       <details className="nav-dropdown planner-dropdown things-dropdown" open={openDropdown === 'planner'} onMouseEnter={() => showDropdown('planner')} onMouseLeave={() => leaveDropdown('planner')}>
         <summary onClick={(event) => { event.preventDefault(); toggleDropdown('planner'); }} aria-expanded={openDropdown === 'planner'}><span>Planea tu viaje</span><NavIcon name="chevron" className="nav-chevron h-3 w-3"/></summary>
         <div className="things-menu-panel"><span className="planner-menu-kicker">GUÍA LOGÍSTICA DEL VISITANTE</span>
+          {link('/planea-tu-viaje',<><img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=160&q=75" alt=""/><span>Armar mi itinerario</span><b>↗</b></>,'things-menu-option')}
           {link('/transportes',<><img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=160&q=75" alt=""/><span>Cómo llegar y transporte</span><b>↗</b></>,'things-menu-option')}
           {link('/mapa',<><img src="https://cdn12.picryl.com/photo/2016/12/31/terrestrial-globe-universe-cosmos-476049-1024.jpg" alt="Planeta Tierra visto desde el espacio" loading="lazy"/><span>Mapa interactivo</span><b>↗</b></>,'things-menu-option')}
           {navSectionLink('/planea-tu-viaje','recomendaciones','Recomendaciones y clima','https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&w=160&q=75')}
